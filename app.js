@@ -39,7 +39,7 @@ function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
 let DEMO_MODE=false, _cacheAt=0;
-const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone'];
+const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone','waMute'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
   if(DEMO_MODE){
@@ -713,9 +713,11 @@ function renderWaPending(){
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים</div><div>👷 '+rows.filter(r=>r['קטגוריה']=='עובדים זרים').length+' זרים</div><div>🧑‍💼 '+rows.filter(r=>r['קטגוריה']=='מנהלי עבודה').length+' מנהלים</div><div>❔ '+rows.filter(r=>r['קטגוריה']=='אחר').length+' אחר</div>';
   document.getElementById('waList').innerHTML=rows.map(r=>{
     const id=esc(String(r['idMessage']||''));
+    const src=String(r['מקור']||'');const gname=src.indexOf('קבוצה:')===0?src.replace('קבוצה: ','').trim():'';
+    const muteBtn=gname?'<button class="ghost" onclick="waMuteUI(\''+esc(gname)+'\')">🔇 השתק קבוצה</button>':'';
     const acts=(r['קטגוריה']=='אחר')
-      ?'<button class="ok" onclick="waApproveUI(\''+id+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveUI(\''+id+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'
-      :'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>';
+      ?'<button class="ok" onclick="waApproveUI(\''+id+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveUI(\''+id+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn
+      :'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn;
     return _waRowHtml(r,acts);
   }).join('')||'<p class="muted">אין הודעות ממתינות. לחץ "משוך עכשיו".</p>';
 }
@@ -783,6 +785,10 @@ async function waPushUI(id){
 async function waRejectUI(id){
   if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: נדחה');return;}
   try{const a=await gw({action:'waReject',id:id});toast(a&&a.ok?'נדחה':'⚠');loadWa();}catch(e){toast('שגיאת חיבור')}
+}
+async function waMuteUI(name){
+  if(!hasBackend()){toast('דמו');return;}if(!name)return;
+  try{const a=await gw({action:'waMute',name:name});toast(a&&a.ok?('הקבוצה "'+name+'" הושתקה ✓ — לא תחזור'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
 }
 function renderFeatures(){
   const A=[

@@ -39,7 +39,7 @@ function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
 let DEMO_MODE=false, _cacheAt=0;
-const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone','waMute','waAutoOn','waAutoOff'];
+const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone','waMute','waAutoOn','waAutoOff','logActivity'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
   if(DEMO_MODE){
@@ -236,15 +236,30 @@ function renderFollowup(){
   document.getElementById('fuSummary').innerHTML='<div><b>'+tasks.length+'</b> משימות</div><div>🔴 '+tasks.filter(t=>t.lvl=='hot').length+' דחופות</div><div>🟡 '+tasks.filter(t=>t.lvl=='warn').length+' ממתינות</div><div>🟢 '+tasks.filter(t=>t.lvl=='ok').length+' הזדמנויות</div>';
   document.getElementById('fuList').innerHTML=tasks.map((t,i)=>{
     const wa=t.phone?'<button class="ok" onclick="waSend(\''+String(t.phone).replace(/\D/g,'')+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+t.lvl+'"></div><div style="flex:1"><b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="snoozeFU('+i+',7)">טופל (שבוע)</button><button class="ghost" onclick="closeFU('+i+')">סיים</button><button class="ghost" onclick="openTreatFU('+i+')">טיפול</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill" title="ניקוד ליד">'+t.score+'</span><br><span class="pill">'+esc(t.owner)+'</span></div></div>';
+    return '<div class="task"><div class="b b-'+t.lvl+'"></div><div style="flex:1"><b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="snoozeFU('+i+',7)">טופל (שבוע)</button><button class="ghost" onclick="closeFU('+i+')">סיים</button><button class="ghost" onclick="openTreatFU('+i+')">טיפול</button><button class="ghost" onclick="openHistory(\''+esc(String(t.phone))+'\',\''+esc(t.c)+'\')">📜 היסטוריה</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill" title="ניקוד ליד">'+t.score+'</span><br><span class="pill">'+esc(t.owner)+'</span></div></div>';
   }).join('')||'<p class="muted">אין משימות. 👍</p>';
 }
 // "טופל" / "דחה" = לא מוחק! רק קובע מתי הלקוח יחזור לרשימה (תאריך "מתי לפנות שוב" עתידי).
+async function logAct(phone,kind,action,details){
+  if(!hasBackend()||!phone)return;
+  try{await gw({action:'logActivity',rec:{phone:String(phone),kind:kind||'',action:action||'',details:details||'',owner:(cfg().owner||'עוזר')}});}catch(e){}
+}
+async function openHistory(phone,name){
+  const bg=document.createElement('div');bg.className='modal-bg';
+  bg.innerHTML='<div class="modal"><b>📜 היסטוריה: '+esc(name||phone||'')+'</b><div id="histBody" class="muted" style="margin-top:8px;max-height:50vh;overflow:auto">טוען…</div><div class="row"><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">סגור</button></div></div>';
+  document.body.appendChild(bg);
+  if(!hasBackend()){document.getElementById('histBody').innerHTML='דמו — אין גשר';return;}
+  try{const a=await gw({action:'getActivity',phone:String(phone)});const b=document.getElementById('histBody');if(!b)return;
+    if(a&&a.ok){const rows=a.rows||[];b.innerHTML=rows.length?rows.map(r=>'<div class="task" style="padding:6px 10px;margin-bottom:4px"><div style="flex:1"><span class="muted" style="font-size:11px">'+esc(r['תאריך']||'')+'</span> <b>'+esc(r['פעולה']||'')+'</b>'+(r['פרטים']?' — '+esc(r['פרטים']):'')+(r['אחראי']?' <span class="pill">'+esc(r['אחראי'])+'</span>':'')+'</div></div>').join(''):'<p class="muted">אין עדיין תיעוד ללקוח זה. פעולות מכאן והלאה יירשמו כאן אוטומטית.</p>';}
+    else b.innerHTML='<span style="color:var(--danger)">שגיאה בטעינת היסטוריה</span>';
+  }catch(e){const b=document.getElementById('histBody');if(b)b.innerHTML='שגיאת חיבור';}
+}
 async function snoozeLead(phone,days){
   const set={'מתי לפנות שוב':plusDays(days),'עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
   if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return}}
   toast(days==1?'נדחה למחר ✓':'טופל — יחזור בעוד '+days+' ימים ✓');
+  logAct(phone,'ליד',days==1?'נדחה למחר':'טופל (חוזר בעוד '+days+' ימים)','');
 }
 async function snoozeFU(i,days){const t=FU[i];if(!t)return;await snoozeLead(t.phone,days);renderFollowup()}
 async function markDone(i){return snoozeFU(i,7)}
@@ -254,7 +269,7 @@ async function closeFU(i){
   const set=t.close||{'מתי לפנות שוב':'','עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(t.phone));if(row)Object.assign(row,set);
   if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא נסגר');return}}
-  toast('המשימה נסגרה ✓');renderFollowup();
+  toast('המשימה נסגרה ✓');logAct(t.phone,'ליד','סיים משימה','');renderFollowup();
 }
 function openTreatFU(i){const t=FU[i];if(!t)return;openTreat(t.phone,t.c)}
 function openTreat(phone,name){
@@ -279,6 +294,7 @@ async function saveTreat(phone){
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
   if(hasBackend()){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set});toast(res.ok?'הטיפול נשמר אצל הלקוח ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הטיפול היה נשמר אצל הלקוח');
+  logAct(phone,'ליד','טיפול',line);
   const m=document.querySelector('.modal-bg');if(m)m.remove();
   renderFollowup();
 }
@@ -289,7 +305,7 @@ function msgCard(title,sub,msg,lvl,phone,act){
 }
 const ACT={};
 function actBtn(view,i,label){return '<button class="ghost" onclick="doAct(\''+view+'\','+i+')">'+(label||'סמן טופל')+'</button>'}
-async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:t.set});if(res&&!res.ok){toast('⚠ לא עודכן: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא עודכן');return}}toast('עודכן ✓');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
+async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:t.set});if(res&&!res.ok){toast('⚠ לא עודכן: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא עודכן');return}}toast('עודכן ✓');logAct(t.phone,'ליד',({agreements:'עדכון הסכם',corp:'עדכון תאגיד',active:'עדכון פעיל'}[view]||'עדכון'),'');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
 function waSend(phone,text){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון לרשומה');return}try{window.open('https://wa.me/'+p+(text?'?text='+encodeURIComponent(text):''),'_blank')}catch(e){copyText(text||'')}}
 function waIntake(){const r=collect();waSend(r['טלפון מנורמל']||r['טלפון'],document.getElementById('readyMsg').value)}
 function tel(phone){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון');return}try{window.location.href='tel:+'+p}catch(e){}}
@@ -513,7 +529,7 @@ function renderContractors(){
     const id=String(r['מזהה קבלן']||''),ph=mgrPhone({'טלפון':r['טלפון']});
     const sub=esc((r['עיר']||r['אזור']||'—')+(r['סוג קבלן']?' · '+r['סוג קבלן']:'')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''))+(r['חתם על הסכם']=='כן'?' · <span style="color:var(--ok)"><b>חתם</b></span>':'')+(open(r)?'':' · <span class="muted">נסגר</span>');
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+(open(r)?'hot':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם חברה']||r['איש קשר']||'—')+'</b>'+(r['איש קשר']&&r['שם חברה']?' <span class="muted">('+esc(r['איש קשר'])+')</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(r['סוגי פרויקטים']?'<div class="muted" style="font-size:12px;margin-top:1px">פרויקטים: '+esc(r['סוגי פרויקטים'])+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openConAct(\''+esc(id)+'\')">פעולה/הערה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'hot':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם חברה']||r['איש קשר']||'—')+'</b>'+(r['איש קשר']&&r['שם חברה']?' <span class="muted">('+esc(r['איש קשר'])+')</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(r['סוגי פרויקטים']?'<div class="muted" style="font-size:12px;margin-top:1px">פרויקטים: '+esc(r['סוגי פרויקטים'])+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openConAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(String(r['טלפון']||''))+'\',\''+esc(r['שם חברה']||r['איש קשר']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין קבלנים.</p>';
 }
 function openConAct(id){
@@ -541,6 +557,7 @@ async function saveConAct(id){
   if(row)Object.assign(row,set);
   if(hasBackend()){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID,key:{'מזהה קבלן':id},set});toast(res.ok?'נשמר אצל הקבלן ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הפעולה הייתה נשמרת');
+  if(row&&row['טלפון'])logAct(row['טלפון'],'קבלן','פעולה/הערה',note||stat||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
 }
 // ----- פרויקטים והשמות (קבלן → פרויקט → השמה; ההשמה נושאת את העמלה) -----
@@ -657,7 +674,7 @@ function renderCandidates(){
     const id=String(r['ID מנהל עבודה']||''),ph=mgrPhone(r),certs=mgrCerts(r).map(c=>'<span class="pill">'+c+'</span>').join(' ');
     const sub=esc((r['אזור עבודה מבוקש']||'—')+' · '+(r['תפקיד עיקרי']||'')+(r['סטטוס מועמד']?' · '+r['סטטוס מועמד']:''))+(mgrNoInt(r)?' · <span style="color:var(--danger)"><b>ללא ראיון</b></span>':'');
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+esc(id)+'\')">פעולה/הערה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(String(r['טלפון']||''))+'\',\''+esc(r['שם מועמד']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין מועמדים.</p>';
 }
 function openMgrAct(id){
@@ -682,6 +699,7 @@ async function saveMgrAct(id){
   if(row)Object.assign(row,set);
   if(hasBackend()){try{const res=await gw({action:'update',table:'',sheetId:SHEET_MANAGERS,key:{'ID מנהל עבודה':id},set});toast(res.ok?'נשמר אצל המועמד ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הפעולה הייתה נשמרת');
+  if(row&&row['טלפון'])logAct(row['טלפון'],'מועמד','פעולה/הערה',note+(didInt?' | בוצע ראיון':''));
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
 }
 // ===== וואטסאפ נכנס — תור אישור (משיכה בלבד) =====

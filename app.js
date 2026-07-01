@@ -670,8 +670,8 @@ async function saveMgrAct(id){
 // ===== וואטסאפ נכנס — תור אישור (משיכה בלבד) =====
 let WA_PENDING=[];
 const DEMO_WA=[
-  {idMessage:'d1',תאריך:todayISO(),טלפון:'972501234567',מקור:'אישי',קטגוריה:'עובדים זרים',טקסט:'שלום, צריך 4 טפסנים באזור חיפה',סטטוס:'ממתין'},
-  {idMessage:'d2',תאריך:todayISO(),טלפון:'972528889999',מקור:'קבוצה: קבלנים והשמות',קטגוריה:'מנהלי עבודה',טקסט:'היי, אני מנהל עבודה עם ניסיון, מחפש עבודה',סטטוס:'ממתין'}
+  {idMessage:'d1',תאריך:todayISO(),טלפון:'972501234567',שם:'אבי כהן',מקור:'אישי',קטגוריה:'עובדים זרים',טקסט:'שלום, צריך 4 טפסנים באזור חיפה',סטטוס:'ממתין'},
+  {idMessage:'d2',תאריך:todayISO(),טלפון:'972528889999',שם:'',מקור:'קבוצה: קבלנים והשמות',קטגוריה:'מנהלי עבודה',טקסט:'היי, אני מנהל עבודה עם ניסיון, מחפש עבודה',סטטוס:'ממתין'}
 ];
 async function loadWa(){
   const sum=document.getElementById('waSummary');
@@ -687,7 +687,9 @@ function renderWa(){
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
     const src=String(r['מקור']||'');const isGrp=src.indexOf('קבוצה')===0;
     const srcHtml=src?'<div class="muted" style="font-size:12px;margin-top:2px">'+(isGrp?'📣 ':'👤 ')+esc(src)+'</div>':'';
-    return '<div class="task"><div class="b b-'+(fore?'hot':'ok')+'"></div><div style="flex:1"><span class="pill">'+esc(r['קטגוריה']||'')+'</span> <b>'+esc(r['טלפון']||'')+'</b> <span class="muted">'+esc(r['תאריך']||'')+'</span>'+srcHtml+'<div style="margin-top:3px">'+esc(r['טקסט']||'')+'</div><div class="row" style="margin-top:6px"><button class="ok" onclick="waApproveUI(\''+id+'\')">אשר → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    const nm=String(r['שם']||'').trim();
+    const who=nm?'<b>'+esc(nm)+'</b> <span class="muted" style="font-size:12px">'+esc(r['טלפון']||'')+'</span>':'<b>'+esc(r['טלפון']||'')+'</b>';
+    return '<div class="task"><div class="b b-'+(fore?'hot':'ok')+'"></div><div style="flex:1"><span class="pill">'+esc(r['קטגוריה']||'')+'</span> '+who+' <span class="muted">'+esc(r['תאריך']||'')+'</span>'+srcHtml+'<div style="margin-top:3px">'+esc(r['טקסט']||'')+'</div><div class="row" style="margin-top:6px"><button class="ok" onclick="waApproveUI(\''+id+'\')">אשר → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין הודעות ממתינות. לחץ "משוך עכשיו" כדי לבדוק.</p>';
 }
 async function waPullNow(){

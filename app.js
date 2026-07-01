@@ -714,7 +714,8 @@ function renderWaPending(){
   document.getElementById('waList').innerHTML=rows.map(r=>{
     const id=esc(String(r['idMessage']||''));
     const src=String(r['מקור']||'');const gname=src.indexOf('קבוצה:')===0?src.replace('קבוצה: ','').trim():'';
-    const muteBtn=gname?'<button class="ghost" onclick="waMuteUI(\''+esc(gname)+'\')">🔇 השתק קבוצה</button>':'';
+    const nm=String(r['שם']||'').trim();const muteTarget=gname||nm;
+    const muteBtn=muteTarget?'<button class="ghost" onclick="waMuteUI(\''+esc(muteTarget)+'\')">🔇 '+(gname?'השתק קבוצה':'החרג')+'</button>':'';
     const acts=(r['קטגוריה']=='אחר')
       ?'<button class="ok" onclick="waApproveUI(\''+id+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveUI(\''+id+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn
       :'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn;

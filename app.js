@@ -708,24 +708,44 @@ function _waRowHtml(r,actionsHtml){
   const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
   return '<div class="task"><div class="b b-'+(fore?'hot':'ok')+'"></div><div style="flex:1"><span class="pill">'+esc(r['קטגוריה']||'')+'</span> '+who+' <span class="muted">'+esc(r['תאריך']||'')+'</span>'+srcHtml+'<div style="margin-top:3px">'+esc(r['טקסט']||'')+'</div><div class="row" style="margin-top:6px">'+actionsHtml+callBtn(ph)+wa+'</div></div></div>';
 }
+function _waGroup(rows){
+  const map={},order=[];
+  rows.forEach(r=>{const key=String(r['טלפון']||'')+'|'+String(r['שם']||'');if(!map[key]){map[key]={phone:r['טלפון']||'',name:r['שם']||'',source:r['מקור']||'',cats:{},msgs:[]};order.push(key);}map[key].msgs.push(r);map[key].cats[r['קטגוריה']||'']=1;});
+  const groups=order.map(k=>map[k]);
+  groups.forEach(g=>{g.msgs.sort((a,b)=>String(a['תאריך']||'').localeCompare(String(b['תאריך']||'')));g.cat=g.cats['עובדים זרים']?'עובדים זרים':(g.cats['מנהלי עבודה']?'מנהלי עבודה':'אחר');g.ids=g.msgs.map(m=>String(m['idMessage']||'')).join(',');});
+  groups.sort((a,b)=>((a.cat=='אחר')-(b.cat=='אחר'))||String(a.phone).localeCompare(String(b.phone)));
+  return groups;
+}
+function _waGroupCard(g,actionsHtml){
+  const src=String(g.source||'');const isGrp=src.indexOf('קבוצה')===0;const ph=String(g.phone||'').replace(/\D/g,'');const fore=g.cat=='עובדים זרים';
+  const srcHtml=src?'<div class="muted" style="font-size:12px;margin-top:2px">'+(isGrp?'📣 ':'👤 ')+esc(src)+'</div>':'';
+  const nm=String(g.name||'').trim();
+  const who=nm?'<b>'+esc(nm)+'</b> <span class="muted" style="font-size:12px">'+esc(g.phone||'')+'</span>':'<b>'+esc(g.phone||'')+'</b>';
+  const cnt=g.msgs.length>1?' <span class="pill">'+g.msgs.length+' הודעות</span>':'';
+  const msgsHtml=g.msgs.map(m=>'<div style="margin-top:4px;padding-inline-start:8px;border-inline-start:2px solid var(--line)"><span class="muted" style="font-size:11px">'+esc(m['תאריך']||'')+'</span> '+esc(m['טקסט']||'')+'</div>').join('');
+  const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
+  return '<div class="task"><div class="b b-'+(fore?'hot':(g.cat=='אחר'?'mut':'ok'))+'"></div><div style="flex:1"><span class="pill">'+esc(g.cat)+'</span> '+who+cnt+srcHtml+msgsHtml+'<div class="row" style="margin-top:6px">'+actionsHtml+callBtn(ph)+wa+'</div></div></div>';
+}
 function renderWaPending(){
   const rows=WA_ROWS;
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים</div><div>👷 '+rows.filter(r=>r['קטגוריה']=='עובדים זרים').length+' זרים</div><div>🧑‍💼 '+rows.filter(r=>r['קטגוריה']=='מנהלי עבודה').length+' מנהלים</div><div>❔ '+rows.filter(r=>r['קטגוריה']=='אחר').length+' אחר</div>';
-  document.getElementById('waList').innerHTML=rows.map(r=>{
-    const id=esc(String(r['idMessage']||''));
-    const src=String(r['מקור']||'');const gname=src.indexOf('קבוצה:')===0?src.replace('קבוצה: ','').trim():'';
-    const nm=String(r['שם']||'').trim();const muteTarget=gname||nm;
-    const muteBtn=muteTarget?'<button class="ghost" onclick="waMuteUI(\''+esc(muteTarget)+'\')">🔇 '+(gname?'השתק קבוצה':'החרג')+'</button>':'';
-    const acts=(r['קטגוריה']=='אחר')
-      ?'<button class="ok" onclick="waApproveUI(\''+id+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveUI(\''+id+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn
-      :'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'+muteBtn;
-    return _waRowHtml(r,acts);
+  document.getElementById('waList').innerHTML=_waGroup(rows).map(g=>{
+    const ids=esc(g.ids);const src=String(g.source||'');const isGrp=src.indexOf('קבוצה')===0;
+    const muteTarget=isGrp?src.replace('קבוצה: ','').trim():String(g.name||'').trim();
+    const muteBtn=muteTarget?'<button class="ghost" onclick="waMuteUI(\''+esc(muteTarget)+'\')">🔇 '+(isGrp?'השתק קבוצה':'החרג')+'</button>':'';
+    const acts=(g.cat=='אחר')
+      ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+muteBtn
+      :'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+muteBtn;
+    return _waGroupCard(g,acts);
   }).join('')||'<p class="muted">אין הודעות ממתינות. לחץ "משוך עכשיו".</p>';
 }
 function renderWaApproved(){
   const rows=WA_ROWS;
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> מאושרים אצלנו (עדיין לא הועברו)</div>';
-  document.getElementById('waList').innerHTML=rows.map(r=>{const id=esc(String(r['idMessage']||'')),fore=r['קטגוריה']=='עובדים זרים';return _waRowHtml(r,'<button class="ok" onclick="waPushUI(\''+id+'\')">העבר לגוגל שיט → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>');}).join('')||'<p class="muted">אין מאושרים ממתינים להעברה.</p>';
+  document.getElementById('waList').innerHTML=_waGroup(rows).map(g=>{
+    const ids=esc(g.ids),fore=g.cat=='עובדים זרים';
+    return _waGroupCard(g,'<button class="ok" onclick="waPushGroup(\''+ids+'\')">העבר לגוגל שיט → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>');
+  }).join('')||'<p class="muted">אין מאושרים ממתינים להעברה.</p>';
 }
 async function waPullNow(force){
   if(!hasBackend()){toast('דמו — אין גשר');return;}
@@ -789,7 +809,19 @@ async function waRejectUI(id){
 }
 async function waMuteUI(name){
   if(!hasBackend()){toast('דמו');return;}if(!name)return;
-  try{const a=await gw({action:'waMute',name:name});toast(a&&a.ok?('הקבוצה "'+name+'" הושתקה ✓ — לא תחזור'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
+  try{const a=await gw({action:'waMute',name:name});toast(a&&a.ok?('"'+name+'" הוחרג ✓ — לא יחזור'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
+}
+async function waApproveGroup(idsCsv,cat){
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
+  try{for(const id of ids){await gw(cat?{action:'waApprove',id:id,cat:cat}:{action:'waApprove',id:id});}toast('אושר ('+ids.length+') — עבר ל"מאושר"');loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+}
+async function waPushGroup(idsCsv){
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
+  try{let cat='';for(const id of ids){const a=await gw({action:'waPush',id:id});if(a&&a.category)cat=a.category;}toast('הועבר ל'+(cat=='עובדים זרים'?'לידים':'מועמדים')+' ✓');loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+}
+async function waRejectGroup(idsCsv){
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length)return;
+  try{for(const id of ids){await gw({action:'waReject',id:id});}toast('נדחה');loadWa();}catch(e){toast('שגיאת חיבור')}
 }
 function renderFeatures(){
   const A=[

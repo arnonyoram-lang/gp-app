@@ -38,7 +38,17 @@ function embedded(){return typeof google!=='undefined'&&google.script&&google.sc
 function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
+let DEMO_MODE=false;
+const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending'];
+function applyDemoBanner(){
+  let b=document.getElementById('demoBanner');
+  if(DEMO_MODE){
+    if(!b){b=document.createElement('div');b.id='demoBanner';b.style.cssText='position:sticky;top:0;z-index:9999;background:#a32d2d;color:#fff;padding:8px 12px;text-align:center;font-weight:600;font-size:14px';document.body.insertBefore(b,document.body.firstChild)}
+    b.textContent='⛔ לא מחובר לנתונים האמיתיים — מוצג דמו. פעולות שמירה חסומות.';b.style.display='block';
+  }else if(b){b.style.display='none'}
+}
 async function gw(payload){
+  if(DEMO_MODE&&payload&&WRITE_ACTIONS.indexOf(payload.action)>-1){toast('לא מחובר — הפעולה חסומה במצב דמו');return{ok:false,error:'demo_blocked'}}
   busy(true);
   try{
     if(embedded()){return await new Promise((res,rej)=>{google.script.run.withSuccessHandler(res).withFailureHandler(e=>rej(new Error(e.message||'server_error'))).api(payload)})}
@@ -63,7 +73,7 @@ function show(id){SECTIONS.forEach(s=>document.getElementById(s).classList.add('
 
 const STATUSES=['חדש','לא ענה','דיברנו - לא צריך כרגע','לחזור בתאריך','מתעניין','חם','חם מאוד','נשלח מידע','נשלח הסכם','תיקונים בהסכם','חתום','הועבר לתאגיד','ממתין לשיבוץ עובדים','נקבע מועד התחלה','התחילו עובדים','פעיל','לקוח לא מרוצה - טיפול','ביקש עוד עובדים','סיים','לא רלוונטי','לא לפנות'];
 const CITIES=['רחובות','תל אביב','ירושלים','חיפה','באר שבע','נתניה','אשדוד','ראשון','פתח תקווה','חולון','רמלה','לוד','מודיעין','כפר סבא','הרצליה','אשקלון','עפולה','טבריה','נצרת','כרמיאל'];
-function normPhone(s){let d=(s||'').replace(/\D/g,'');if(d.startsWith('0'))d='972'+d.slice(1);return d}
+function normPhone(s){let d=(s||'').replace(/\D/g,'');if(d.length===9&&d.charAt(0)==='5')d='0'+d;if(d.startsWith('0'))d='972'+d.slice(1);return d}
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function plusDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function parseDate(v){
@@ -94,7 +104,7 @@ function extract(t){
 }
 
 const F1=['שם הלקוח','חברה','טלפון','טלפון מנורמל','ח.פ.','שם התאגיד','אזור עבודה','כמות עובדים שלד','כמות עובדים גמרים','סוג עובדים','תאור הפרויקט','לכמה זמן','דירוג אשראי','בעבודה','מתי לפנות שוב','הערות'];
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/`/g,'&#96;')}
 function field(k,inner){return '<div><label>'+k+'</label>'+inner+'</div>'}
 function sel(k,opts,v){return '<select data-k="'+k+'">'+opts.map(o=>'<option '+(o==v?'selected':'')+'>'+o+'</option>').join('')+'</select>'}
 function aiExtractClient(t){busy(true);return new Promise(res=>{const done=v=>{busy(false);res(v)};try{google.script.run.withSuccessHandler(done).withFailureHandler(()=>done(null)).aiExtract(t)}catch(e){done(null)}})}
@@ -155,12 +165,13 @@ async function loadAll(cb){
     try{const a=await gw({action:'get',table:cfg().t1||'',sheetId:leadsId()});if(a&&a.ok){LEADS=a.rows;okL=true}else if(a&&a.error){LOAD_ERR='לידים: '+a.error}}catch(e){LOAD_ERR='לידים: '+((e&&e.message)||e)}
     try{const b=await gw({action:'get',table:cfg().t2||'',sheetId:hoursId()});if(b&&b.ok){ROWS=b.rows;okH=true}}catch(e){}
     if(!okL)LEADS=DEMO_LEADS;
+    DEMO_MODE=!okL;applyDemoBanner();
     if(!okH)ROWS=DEMO_HOURS;
     try{if(cb)cb()}catch(e){LOAD_ERR='תצוגה: '+((e&&e.message)||e)}
     const bz=document.getElementById('busy');if(bz){if(LOAD_ERR){bz.style.display='inline-block';bz.textContent='⚠ '+String(LOAD_ERR).slice(0,90)}else{bz.style.display='none'}}
     return;
   }
-  LEADS=DEMO_LEADS;ROWS=DEMO_HOURS;if(cb)cb();
+  LEADS=DEMO_LEADS;ROWS=DEMO_HOURS;DEMO_MODE=true;applyDemoBanner();if(cb)cb();
 }
 function leadScore(r){
   let s=0;
@@ -226,7 +237,7 @@ function renderFollowup(){
 async function snoozeLead(phone,days){
   const set={'מתי לפנות שוב':plusDays(days),'עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
-  if(hasBackend()&&phone){try{await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set})}catch(e){}}
+  if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return}}
   toast(days==1?'נדחה למחר ✓':'טופל — יחזור בעוד '+days+' ימים ✓');
 }
 async function snoozeFU(i,days){const t=FU[i];if(!t)return;await snoozeLead(t.phone,days);renderFollowup()}
@@ -236,7 +247,7 @@ async function closeFU(i){
   const t=FU[i];if(!t)return;
   const set=t.close||{'מתי לפנות שוב':'','עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(t.phone));if(row)Object.assign(row,set);
-  if(hasBackend()&&t.phone){try{await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set})}catch(e){}}
+  if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא נסגר');return}}
   toast('המשימה נסגרה ✓');renderFollowup();
 }
 function openTreatFU(i){const t=FU[i];if(!t)return;openTreat(t.phone,t.c)}
@@ -272,7 +283,7 @@ function msgCard(title,sub,msg,lvl,phone,act){
 }
 const ACT={};
 function actBtn(view,i,label){return '<button class="ghost" onclick="doAct(\''+view+'\','+i+')">'+(label||'סמן טופל')+'</button>'}
-async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:t.set})}catch(e){}}toast('עודכן ✓');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
+async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:t.set});if(res&&!res.ok){toast('⚠ לא עודכן: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא עודכן');return}}toast('עודכן ✓');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
 function waSend(phone,text){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון לרשומה');return}try{window.open('https://wa.me/'+p+(text?'?text='+encodeURIComponent(text):''),'_blank')}catch(e){copyText(text||'')}}
 function waIntake(){const r=collect();waSend(r['טלפון מנורמל']||r['טלפון'],document.getElementById('readyMsg').value)}
 function tel(phone){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון');return}try{window.location.href='tel:+'+p}catch(e){}}
@@ -738,9 +749,11 @@ async function waApproveUI(id){
   if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: אושר (ברשימה שלנו)');return;}
   try{const a=await gw({action:'waApprove',id:id});toast(a&&a.ok?'אושר — עבר לרשימת "מאושר"':'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
 }
+let _waActing=false;
 async function waPushUI(id){
   if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: הועבר');return;}
-  try{const a=await gw({action:'waPush',id:id});toast(a&&a.ok?('הועבר ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+' ✓'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
+  if(_waActing){toast('רגע, פעולה קודמת עוד רצה…');return;}_waActing=true;
+  try{const a=await gw({action:'waPush',id:id});toast(a&&a.ok?('הועבר ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+' ✓'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waRejectUI(id){
   if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: נדחה');return;}

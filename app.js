@@ -710,8 +710,14 @@ function _waRowHtml(r,actionsHtml){
 }
 function renderWaPending(){
   const rows=WA_ROWS;
-  document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים</div><div>👷 '+rows.filter(r=>r['קטגוריה']=='עובדים זרים').length+' זרים</div><div>🧑‍💼 '+rows.filter(r=>r['קטגוריה']=='מנהלי עבודה').length+' מנהלים</div>';
-  document.getElementById('waList').innerHTML=rows.map(r=>{const id=esc(String(r['idMessage']||''));return _waRowHtml(r,'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>');}).join('')||'<p class="muted">אין הודעות ממתינות. לחץ "משוך עכשיו".</p>';
+  document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים</div><div>👷 '+rows.filter(r=>r['קטגוריה']=='עובדים זרים').length+' זרים</div><div>🧑‍💼 '+rows.filter(r=>r['קטגוריה']=='מנהלי עבודה').length+' מנהלים</div><div>❔ '+rows.filter(r=>r['קטגוריה']=='אחר').length+' אחר</div>';
+  document.getElementById('waList').innerHTML=rows.map(r=>{
+    const id=esc(String(r['idMessage']||''));
+    const acts=(r['קטגוריה']=='אחר')
+      ?'<button class="ok" onclick="waApproveUI(\''+id+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveUI(\''+id+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>'
+      :'<button class="ok" onclick="waApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="waRejectUI(\''+id+'\')">דחה</button>';
+    return _waRowHtml(r,acts);
+  }).join('')||'<p class="muted">אין הודעות ממתינות. לחץ "משוך עכשיו".</p>';
 }
 function renderWaApproved(){
   const rows=WA_ROWS;
@@ -722,7 +728,7 @@ async function waPullNow(force){
   if(!hasBackend()){toast('דמו — אין גשר');return;}
   toast(force?'מושך מחדש…':'מושך הודעות…');
   try{const a=await gw(force?{action:'waPull',force:true}:{action:'waPull'});
-    if(a&&a.ok){toast('נמשכו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים'+(a.muted?' · '+a.muted+' מושתקות':'')+(a.dup?' · '+a.dup+' כפולות דולגו':''));loadWa();return;}
+    if(a&&a.ok){toast('נמשכו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים'+(a.other?' · '+a.other+' אחר':'')+(a.muted?' · '+a.muted+' מושתקות':'')+(a.dup?' · '+a.dup+' כפולות':''));loadWa();return;}
     if(a&&a.reason=='disabled'){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">המשיכה כבויה — ודא WA_ENABLED=1</div>';return;}
     const detail=(a&&a.body)?String(a.body):'';
     document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)"><b>שגיאה '+esc(String((a&&a.code)||''))+' מגרין</b></div>'+(detail?'<div class="muted" style="font-size:12px;margin-top:2px;word-break:break-word">'+esc(detail)+'</div>':'')+'<div class="muted" style="font-size:11px">(העתק את זה לקלוד)</div>';
@@ -732,7 +738,7 @@ async function waResetNow(){
   if(!hasBackend()){toast('דמו — אין גשר');return;}
   toast('מרענן ממתינים…');
   try{const a=await gw({action:'waResetPending'});
-    if(a&&a.ok){toast('רועננו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים'+(a.dup?' · '+a.dup+' כפולות':''));waView='pend';loadWa();return;}
+    if(a&&a.ok){toast('רועננו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים'+(a.other?' · '+a.other+' אחר':'')+(a.dup?' · '+a.dup+' כפולות':''));waView='pend';loadWa();return;}
     document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">⚠ '+esc(String((a&&a.reason=='disabled')?'המשיכה כבויה':((a&&a.code)||a&&a.error||'שגיאה'))+'')+'</div>';
   }catch(e){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">שגיאת חיבור לגשר</div>'}
 }
@@ -759,9 +765,9 @@ async function waTestNow(){
       '<div class="muted" style="font-size:11px">(העתק הכל לקלוד)</div>';
   }catch(e){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">שגיאת חיבור לגשר</div>'}
 }
-async function waApproveUI(id){
+async function waApproveUI(id,cat){
   if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: אושר (ברשימה שלנו)');return;}
-  try{const a=await gw({action:'waApprove',id:id});toast(a&&a.ok?'אושר — עבר לרשימת "מאושר"':'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
+  try{const a=await gw(cat?{action:'waApprove',id:id,cat:cat}:{action:'waApprove',id:id});toast(a&&a.ok?'אושר — עבר לרשימת "מאושר"':'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
 }
 let _waActing=false;
 async function waPushUI(id){

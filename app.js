@@ -715,7 +715,6 @@ async function waPullNow(force){
 }
 async function waResetNow(){
   if(!hasBackend()){toast('דמו — אין גשר');return;}
-  if(!confirm('לרענן את הממתינים? ההודעות הממתינות ייטענו מחדש עם מקור ושם (מאושרים לא נפגעים).'))return;
   toast('מרענן ממתינים…');
   try{const a=await gw({action:'waResetPending'});
     if(a&&a.ok){toast('רועננו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים'+(a.dup?' · '+a.dup+' כפולות':''));waView='pend';loadWa();return;}

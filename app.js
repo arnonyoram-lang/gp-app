@@ -692,10 +692,11 @@ async function waPullNow(){
   if(!hasBackend()){toast('דמו — אין גשר');return;}
   toast('מושך הודעות…');
   try{const a=await gw({action:'waPull'});
-    if(a&&a.ok)toast('נמשכו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים');
-    else toast('⚠ '+(a&&a.reason=='disabled'?'המשיכה כבויה (WA_ENABLED)':((a&&a.code)||'שגיאה')));
-    loadWa();
-  }catch(e){toast('שגיאת חיבור')}
+    if(a&&a.ok){toast('נמשכו: '+(a.foreign||0)+' זרים · '+(a.managers||0)+' מנהלים');loadWa();return;}
+    if(a&&a.reason=='disabled'){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">המשיכה כבויה — ודא WA_ENABLED=1</div>';return;}
+    const detail=(a&&a.body)?String(a.body):'';
+    document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)"><b>שגיאה '+esc(String((a&&a.code)||''))+' מגרין</b></div>'+(detail?'<div class="muted" style="font-size:12px;margin-top:2px;word-break:break-word">'+esc(detail)+'</div>':'')+'<div class="muted" style="font-size:11px">(העתק את זה לקלוד)</div>';
+  }catch(e){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">שגיאת חיבור לגשר</div>'}
 }
 async function waApproveUI(id){
   if(!hasBackend()){WA_PENDING=WA_PENDING.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: אושר');return;}

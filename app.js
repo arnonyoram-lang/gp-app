@@ -39,7 +39,7 @@ function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
 let DEMO_MODE=false, _cacheAt=0;
-const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote'];
+const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
   if(DEMO_MODE){
@@ -748,9 +748,14 @@ async function saveWaNote(){
   if(!hasBackend()){toast('דמו — לא נשמר');return;}
   try{const a=await gw({action:'waNote',text:t});if(a&&a.ok){toast('נשמר ✓ — אטפל בזה');box.value='';loadWaNotes();}else toast('⚠ '+((a&&a.error)||'שגיאה'));}catch(e){toast('שגיאת חיבור')}
 }
+let WA_NOTES=[];
 async function loadWaNotes(){
   const el=document.getElementById('waNotesList');if(!el||!hasBackend())return;
-  try{const a=await gw({action:'waNotes'});if(a&&a.ok){const rows=a.rows||[];el.innerHTML=rows.length?('<div class="muted" style="font-size:11px;margin-bottom:4px">בקשות פתוחות ('+rows.length+'):</div>'+rows.map(r=>'<div class="task" style="padding:6px 10px;margin-bottom:4px"><span class="muted" style="font-size:11px">'+esc(r['תאריך']||'')+'</span> '+esc(r['בקשה']||'')+'</div>').join('')):'';}}catch(e){}
+  try{const a=await gw({action:'waNotes'});if(a&&a.ok){WA_NOTES=a.rows||[];el.innerHTML=WA_NOTES.length?('<div class="muted" style="font-size:11px;margin-bottom:4px">בקשות פתוחות ('+WA_NOTES.length+'):</div>'+WA_NOTES.map((r,i)=>'<div class="task" style="padding:6px 10px;margin-bottom:4px"><div style="flex:1"><span class="muted" style="font-size:11px">'+esc(r['תאריך']||'')+'</span> '+esc(r['בקשה']||'')+'</div><button class="ghost" onclick="waNoteDoneUI('+i+')">✓ טופל</button></div>').join('')):'';}}catch(e){}
+}
+async function waNoteDoneUI(i){
+  const r=WA_NOTES[i];if(!r)return;
+  try{const a=await gw({action:'waNoteDone',text:r['בקשה']});toast(a&&a.ok?'סומן כטופל ✓':'⚠');loadWaNotes();}catch(e){toast('שגיאת חיבור')}
 }
 async function waTestNow(){
   if(!hasBackend()){toast('דמו — אין גשר');return;}

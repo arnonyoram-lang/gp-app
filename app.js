@@ -244,6 +244,10 @@ async function logAct(phone,kind,action,details){
   if(!hasBackend()||!phone)return;
   try{await gw({action:'logActivity',rec:{phone:String(phone),kind:kind||'',action:action||'',details:details||'',owner:(cfg().owner||'עוזר')}});}catch(e){}
 }
+async function logActId(id,kind,action,details){
+  if(!hasBackend()||!id)return;
+  try{await gw({action:'logActivity',rec:{id:String(id),kind:kind||'',action:action||'',details:details||'',owner:(cfg().owner||'עוזר')}});}catch(e){}
+}
 async function openHistory(phone,name){
   const bg=document.createElement('div');bg.className='modal-bg';
   bg.innerHTML='<div class="modal"><b>📜 היסטוריה: '+esc(name||phone||'')+'</b><div id="histBody" class="muted" style="margin-top:8px;max-height:50vh;overflow:auto">טוען…</div><div class="row"><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">סגור</button></div></div>';
@@ -596,7 +600,7 @@ function renderProjects(){
   document.getElementById('mgrList').innerHTML=rows.map(r=>{
     const id=String(r['מזהה פרויקט']||''),con=lookupCon(r['מזהה קבלן']);
     const sub=esc((r['עיר']||'—')+(r['סוג פרויקט']?' · '+r['סוג פרויקט']:'')+(r['שלב ביצוע']?' · '+r['שלב ביצוע']:'')+(r['מספר פועלים']?' · '+r['מספר פועלים']+' פועלים':'')+(r['סטטוס פרויקט']?' · '+r['סטטוס פרויקט']:''));
-    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם פרויקט']||('פרויקט '+id))+'</b>'+(con?' <span class="muted">· '+esc(con)+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openProjAct(\''+esc(id)+'\')">פעולה/הערה</button></div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם פרויקט']||('פרויקט '+id))+'</b>'+(con?' <span class="muted">· '+esc(con)+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openProjAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(id)+'\',\''+esc(r['שם פרויקט']||('פרויקט '+id))+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין פרויקטים.</p>';
 }
 function renderPlacements(){
@@ -611,7 +615,7 @@ function renderPlacements(){
     const id=String(r['מזהה השמה']||''),pr=lookupProj(r['מזהה פרויקט']),mg=lookupCand(r['מזהה מנהל עבודה']);
     const cm=r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':'';
     const sub=esc((r['תחילת עבודה']||'')+(r['סיום עבודה']?' → '+r['סיום עבודה']:' (פעילה)')+(r['סטטוס השמה']?' · '+r['סטטוס השמה']:'')+(r['סטטוס תהליך']?' · '+r['סטטוס תהליך']:''));
-    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+esc(id)+'\')">פעולה/הערה</button></div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(id)+'\',\'השמה '+esc(id)+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין השמות.</p>';
 }
 function openProjAct(id){
@@ -630,6 +634,7 @@ async function saveProjAct(id){
   if(row)Object.assign(row,set);
   if(hasBackend()&&PROJECTS_GID!=null){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:PROJECTS_GID,key:{'מזהה פרויקט':id},set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast(PROJECTS_GID==null?'דמו (ממתין ל-gid)':'דמו: היה נשמר');
+  logActId(id,'פרויקט','פעולה/הערה',note||stat||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
 }
 function openPlaceAct(id){
@@ -650,6 +655,7 @@ async function savePlaceAct(id){
   if(row)Object.assign(row,set);
   if(hasBackend()&&PLACEMENTS_GID!=null){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:PLACEMENTS_GID,key:{'מזהה השמה':id},set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast(PLACEMENTS_GID==null?'דמו (ממתין ל-gid)':'דמו: היה נשמר');
+  logActId(id,'השמה','פעולה/הערה',note||stat||proc||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
 }
 const DEMO_MGRS=[

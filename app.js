@@ -858,8 +858,9 @@ function renderClients(){
   const q=((document.getElementById('clientSearch')||{}).value||'').trim();
   if(!q){el.innerHTML='<p class="muted">הקלד שם / חברה / טלפון כדי למצוא לקוח (כולל כאלה שסגרת).</p>';return;}
   let rows=LEADS.filter(r=>(String(r['שם הלקוח']||'')+' '+String(r['חברה']||'')+' '+String(r['טלפון']||'')+' '+String(r['טלפון מנורמל']||'')).indexOf(q)>-1);
+  rows.sort((a,b)=>String(b['עדכון אחרון']||'').localeCompare(String(a['עדכון אחרון']||''))); // המעודכנים אחרונה קודם
   const total=rows.length;rows=rows.slice(0,60);
-  el.innerHTML='<div class="sumbar"><div><b>'+total+'</b> תוצאות'+(total>60?' (מוצגות 60 — צמצם חיפוש)':'')+'</div></div>'+rows.map(r=>{
+  el.innerHTML='<div class="sumbar"><div><b>'+total+'</b> תוצאות'+(total>60?' — מוצגות 60 (המעודכנים אחרונה קודם). חפש מדויק יותר.':' (המעודכנים אחרונה קודם)')+'</div></div>'+rows.map(r=>{
     const ph=String(r['טלפון מנורמל']||r['טלפון']||'').replace(/\D/g,'');
     const name=esc(r['חברה']||r['שם הלקוח']||'(ללא שם)');const st=esc(r['בעבודה']||'');
     const key=esc(String(r['טלפון מנורמל']||r['טלפון']||''));

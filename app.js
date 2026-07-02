@@ -1079,5 +1079,7 @@ const DEMO_HOURS=[
 ];
 
 function initDraft(){const it=document.getElementById('intakeText');if(!it)return;try{const d=localStorage.getItem('gp_draft');if(d&&!it.value)it.value=d}catch(e){}it.addEventListener('input',()=>{try{localStorage.setItem('gp_draft',it.value)}catch(e){}})}
+// מיגרציה: שמות טאבים ישנים ('לידים'/'שעות') שלא קיימים בגיליונות — מנקים ל-'' (=הטאב הראשון). מונע tab_not_found בכתיבות.
+(function(){try{const c=cfg();let ch=false;if(c.t1==='לידים'){c.t1='';ch=true}if(c.t2==='שעות'){c.t2='';ch=true}if(ch)localStorage.setItem(CFG_KEY,JSON.stringify(c))}catch(e){}})();
 refreshConn();initDark();applyRole();initDraft();renderHome();
 

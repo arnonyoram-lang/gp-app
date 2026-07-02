@@ -1,6 +1,6 @@
 /* נוצר אוטומטית מ-app/index.html — אל תערוך ידנית */
-var GP_CSS = "\n  :root{\n    --accent:#2f6fed; --accent-bg:#e9f0fe; --accent-bd:#bcd3fb;\n    --ok:#1d9e75; --ok-bg:#e1f5ee; --warn:#ba7517; --warn-bg:#faeeda;\n    --danger:#d8443c; --danger-bg:#fbeae9;\n    --ink:#1c1c1a; --muted:#6b6a64; --line:#e4e2da; --card:#fff; --page:#f7f6f1; --r:10px; --soft:#f3f2ec;\n  }\n  body.dark{--ink:#e8e6e0;--muted:#a3a199;--line:#34332f;--card:#23231f;--page:#1a1a17;--soft:#2a2a25;--accent-bg:#16233a;--accent-bd:#244266;--ok-bg:#10231d;--warn-bg:#2a2110;--danger-bg:#2c1614;}\n  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}\n  @media print{header,.row,.tile,#mkAud,#kbSearch{display:none!important}.card,.task{break-inside:avoid}body{background:#fff}}\n  *{box-sizing:border-box}\n  html,body{max-width:100%;overflow-x:hidden}\n  body{margin:0;font-family:\"Segoe UI\",Arial,sans-serif;background:var(--page);color:var(--ink);line-height:1.6}\n  .card,.task,.msgbox,.tile,.kpi div{overflow-wrap:anywhere;word-break:break-word}\n  svg,img,pre{max-width:100%}\n  header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}\n  header h1{font-size:18px;margin:0;font-weight:600;flex:1}\n  .wrap{max-width:920px;margin:0 auto;padding:18px}\n  button{font-family:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);padding:9px 14px;font-size:14px;color:var(--ink)}\n  button:hover{border-color:#bbb}\n  .primary{background:var(--accent);color:#fff;border-color:var(--accent)}\n  .ok{background:var(--ok);color:#fff;border-color:var(--ok)}\n  .ghost{background:transparent}\n  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}\n  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 12px;text-align:center;font-size:15px;font-weight:600}\n  .tile:hover{border-color:var(--accent);color:var(--accent)}\n  .tile small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:4px}\n  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}\n  textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--ink)}\n  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}\n  input,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:inherit;font-size:14px;background:var(--card);color:var(--ink)}\n  .form{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}\n  .form .full{grid-column:1/3}\n  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}\n  pre{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all}\n  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;border:1px solid}\n  .t-new{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}\n  .t-exist{background:var(--warn-bg);color:var(--warn);border-color:#e5cfa0}\n  .hide{display:none}\n  .muted{color:var(--muted);font-size:13px}\n  .task{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#fff}\n  .task .b{width:6px;border-radius:3px;align-self:stretch}\n  .b-hot{background:var(--danger)} .b-warn{background:var(--warn)} .b-ok{background:var(--ok)} .b-mut{background:#cfcdc5}\n  .pill{font-size:11px;color:var(--muted);background:#f0efe9;border-radius:12px;padding:1px 7px}\n  .sumbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}\n  .sumbar div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}\n  .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:12px}\n  .kpi div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}\n  .kpi b{display:block;font-size:22px}\n  .kpi span{font-size:12px;color:var(--muted)}\n  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:20}\n  .modal{background:#fff;border-radius:12px;padding:18px;max-width:440px;width:90%}\n  .msgbox{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px;margin-top:6px}\n  h3{margin:18px 0 8px;font-size:15px}\n  .bottomnav{display:none}\n  @media(max-width:560px){\n    .wrap{padding:10px}\n    .form{grid-template-columns:1fr}\n    .form .full{grid-column:1}\n    .kpi{grid-template-columns:repeat(2,1fr)}\n    header{gap:6px 8px;padding:9px 10px;flex-wrap:wrap}\n    header h1{font-size:14px;flex:1 1 100%;margin-bottom:2px}\n    .grid{grid-template-columns:repeat(2,1fr);gap:8px}\n    .tile{padding:18px 10px;min-height:72px;font-size:14px}\n    button{padding:11px 12px;min-height:44px}\n    input,select,textarea{font-size:16px}\n    .task{flex-wrap:wrap;gap:8px}\n    .task .row{gap:6px}\n    .task button{min-height:auto;padding:9px 14px;flex:0 0 auto;font-size:14px;white-space:nowrap}\n    .sumbar div{flex:1 1 45%;text-align:center}\n    .kpi b{font-size:20px}\n    body{padding-bottom:64px}\n    .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:10}\n    .bottomnav button{flex:1;border:none;border-radius:0;background:transparent;padding:7px 2px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted)}\n    .bottomnav button.active{color:var(--accent)}\n    .bottomnav button .ic{font-size:18px;line-height:1}\n  }\n";
-var GP_HTML = "\n<header>\n  <h1>אנשים טובים – עובדים זרים והשמה</h1>\n  <span id=\"connDot\" class=\"pill\">לא מחובר</span>\n  <span id=\"busy\" class=\"pill\" style=\"display:none\">⏳ טוען…</span>\n  <button class=\"ghost\" onclick=\"show('home')\">בית</button>\n  <button class=\"ghost\" id=\"darkBtn\" onclick=\"toggleDark()\" aria-label=\"החלף מצב כהה\">🌙</button>\n  <button class=\"ghost\" onclick=\"window.print()\" aria-label=\"הדפסה או PDF\">🖨</button>\n  <button class=\"ghost\" onclick=\"openCfg()\" aria-label=\"הגדרות\" style=\"display:none\">⚙ הגדרות</button>\n</header>\n<div class=\"wrap\">\n\n  <section id=\"home\">\n    <div class=\"row\" style=\"margin-bottom:10px;gap:8px\">\n      <button id=\"modeZ\" class=\"primary\" style=\"flex:1;font-size:15px;font-weight:600\" onclick=\"setMode('z')\">👷‍♂️ עובדים זרים</button>\n      <button id=\"modeM\" class=\"ghost\" style=\"flex:1;font-size:15px;font-weight:600\" onclick=\"setMode('m')\">🧑‍💼 מנהלי עבודה</button>\n    </div>\n\n    <div id=\"homeZ\">\n      <div id=\"homeNow\"></div>\n      <div class=\"grid\">\n        <div class=\"tile\" onclick=\"show('control')\" style=\"grid-column:1/-1;border-color:var(--accent);color:var(--accent);font-size:16px\">🎯 מוקד היום<small>לעבוד לפי דחיפות — מה עכשיו (פולואפים + וואטסאפ + תקועים)</small></div>\n        <div class=\"tile\" onclick=\"show('clients')\">👥 לקוחות<small>לחפש ולנהל — כל לקוח (גם סגור) + היסטוריה</small></div>\n        <div class=\"tile\" onclick=\"show('intakeHub')\">📥 קליטה<small>ליד חדש · סיכום · וואטסאפ</small></div>\n        <div class=\"tile\" onclick=\"show('insights')\">📊 תובנות<small>דוח מנהל · עמלות · איכות</small></div>\n        <div class=\"tile\" onclick=\"show('more')\">⋯ עוד<small>שיווק · ידע · מדריך · לפי שלב</small></div>\n      </div>\n      <p class=\"muted\" style=\"margin-top:8px\">מקור האמת: AppSheet / Google Sheets. המסך הזה הוא שכבת הפעולה החכמה.</p>\n    </div>\n\n    <div id=\"homeM\" class=\"hide\">\n      <div id=\"homeNowM\"></div>\n      <div class=\"grid\">\n        <div class=\"tile\" onclick=\"openMgr('open')\" style=\"grid-column:1/-1;border-color:var(--accent);color:var(--accent);font-size:16px\">🎯 מוקד היום<small>לעבוד לפי דחיפות — מועמדים בלי ראיון + קבלנים פתוחים</small></div>\n        <div class=\"tile\" onclick=\"openMgr('cand')\">👥 מאגר<small>לחפש ולנהל — כל הרשומות (מועמדים · קבלנים · פרויקטים · השמות)</small></div>\n        <div class=\"tile\" onclick=\"show('wa')\">📥 קליטה<small>וואטסאפ נכנס (מנהלים)</small></div>\n        <div class=\"tile\" onclick=\"openMgr('place')\">📊 עמלות והשמות<small>חיבור + כסף</small></div>\n        <div class=\"tile\" onclick=\"show('guideM')\">📖 מדריך<small>כל כפתור וזרימה</small></div>\n      </div>\n      <p class=\"muted\" style=\"margin-top:8px\">שכבת פעולה — דוחפת פתוחים ומתעדכנת מול אפליקציית הראיונות ו‑AppSheet.</p>\n    </div>\n  </section>\n\n  <section id=\"control\" class=\"hide\">\n    <div class=\"card\" style=\"border-color:var(--accent)\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">🎯 מוקד היום</b><button class=\"ghost\" onclick=\"renderControl()\">רענן</button></div>\n      <p class=\"muted\" style=\"margin:4px 0 0\">כל מה שצריך טיפול היום — פולואפים, וואטסאפ ממתין, ותקועים — במקום אחד, מדורג.</p></div>\n    <div id=\"controlSummary\" class=\"sumbar\"></div>\n    <div id=\"controlList\"></div>\n  </section>\n\n  <section id=\"more\" class=\"hide\">\n    <div class=\"card\"><b>⋯ עוד</b><p class=\"muted\" style=\"margin:4px 0 0\">כלים משניים — לא ליום-יום.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" onclick=\"show('marketing')\">שיווק והודעות<small>קהלים + נוסחים</small></div>\n      <div class=\"tile\" onclick=\"show('quality')\">בקרת איכות<small>רשומות חסרות/כפילויות</small></div>\n      <div class=\"tile\" onclick=\"show('knowledge')\">מרכז ידע<small>תסריטים ותשובות</small></div>\n      <div class=\"tile\" onclick=\"show('guideZ')\">📖 מדריך מלא<small>כל כפתור וזרימה</small></div>\n      <div class=\"tile\" onclick=\"show('features')\">⭐ פיצ'רים<small>מה יש במערכת</small></div>\n      <div class=\"tile\" data-sec=\"agreements\" onclick=\"show('agreements')\">הסכמים תקועים<small>לפי שלב</small></div>\n      <div class=\"tile\" data-sec=\"corp\" onclick=\"show('corp')\">ממתינים לתאגיד<small>לפי שלב</small></div>\n      <div class=\"tile\" data-sec=\"active\" onclick=\"show('active')\">לקוחות פעילים<small>לפי שלב</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"intakeHub\" class=\"hide\">\n    <div class=\"card\"><b>📥 קליטה</b><p class=\"muted\" style=\"margin:4px 0 0\">כל מה שנכנס — במקום אחד.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" onclick=\"show('wa')\">📩 וואטסאפ נכנס<small>פניות לאישור</small></div>\n      <div class=\"tile\" data-sec=\"intake\" onclick=\"show('intake')\">ליד חדש<small>טקסט חופשי ← רשומה</small></div>\n      <div class=\"tile\" data-sec=\"summary\" onclick=\"show('summary')\">סכם שיחה<small>תמלול ← עדכון</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"insights\" class=\"hide\">\n    <div class=\"card\"><b>📊 תובנות</b><p class=\"muted\" style=\"margin:4px 0 0\">מספרים להחלטות.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" data-sec=\"manager\" onclick=\"show('manager')\">דוח מנהל<small>בוקר/סוף יום</small></div>\n      <div class=\"tile\" data-sec=\"commiss\" onclick=\"show('commiss')\">עמלות וגבייה<small>פערים</small></div>\n      <div class=\"tile\" data-sec=\"quality\" onclick=\"show('quality')\">בקרת איכות<small>רשומות חסרות</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"clients\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">🔎 חיפוש לקוח</b><input id=\"clientSearch\" placeholder=\"שם / חברה / טלפון\" oninput=\"renderClients()\" style=\"flex:1\"><button class=\"ghost\" onclick=\"loadAll(renderClients,true)\">רענן</button></div>\n      <div class=\"row\" style=\"margin-top:8px\"><button id=\"clSortRecent\" class=\"primary\" onclick=\"setClientSort('recent')\">מעודכנים אחרונה</button><button id=\"clSortAbc\" class=\"ghost\" onclick=\"setClientSort('abc')\">א-ב (לפי שם)</button></div>\n      <p class=\"muted\" style=\"margin:6px 0 0\">מוצא כל לקוח בכל סטטוס (גם אחרי \"סיים\"). ב\"א-ב\" אפשר לדפדף בכל הלקוחות בלי לחפש. 📜 היסטוריה = הציר הזמני המלא.</p></div>\n    <div id=\"clientsList\"></div>\n  </section>\n\n  <section id=\"guideZ\" class=\"hide\"><div id=\"guideZContent\" class=\"card\"></div></section>\n  <section id=\"guideM\" class=\"hide\"><div id=\"guideMContent\" class=\"card\"></div></section>\n\n  <section id=\"wa\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">וואטסאפ נכנס</b><button class=\"primary\" onclick=\"waPullNow()\">משוך עכשיו</button><button class=\"ghost\" onclick=\"waResetNow()\">רענן ממתינים (מקור+שם)</button><button id=\"waAutoBtn\" class=\"ghost\" onclick=\"waAutoToggle()\">⏱️ משיכה אוטומטית</button><button class=\"ghost\" onclick=\"waTestNow()\">בדיקת חיבור</button></div>\n      <div class=\"row\" style=\"margin-top:8px\"><button id=\"waTabPend\" class=\"primary\" onclick=\"waSwitch('pend')\">ממתין לאישור</button><button id=\"waTabAppr\" class=\"ghost\" onclick=\"waSwitch('appr')\">מאושר — להעברה</button></div>\n      <p class=\"muted\" style=\"margin:6px 0 0\">משיכה בלבד. <b>אשר</b> = שומר אצלנו (לא נכתב לשום מקום). רק <b>העבר לגוגל שיט</b> כותב בפועל (זרים→לידים · מנהלים→מועמדים).</p></div>\n    <div id=\"waSummary\" class=\"sumbar\"></div>\n    <div id=\"waList\"></div>\n    <div class=\"card\" style=\"margin-top:14px\"><b>📝 בקשות והערות לקלוד</b>\n      <p class=\"muted\" style=\"margin:4px 0 6px\">הדבק כאן שמות קבוצות להשתקה, תיקונים, או כל בקשה. נצבר כאן ואטפל בהכל בבת אחת — פשוט תגיד לי \"תטפל בבקשות\".</p>\n      <textarea id=\"waNoteBox\" placeholder=\"לדוגמה: להשתיק את הקבוצה 'דרושים בנייה מרכז' · הכפתור X לא עובד · להוסיף שדה Y למועמדים\"></textarea>\n      <div class=\"row\"><button class=\"ok\" onclick=\"saveWaNote()\">שמור בקשה</button></div>\n      <div id=\"waNotesList\" style=\"margin-top:8px\"></div>\n    </div>\n  </section>\n\n  <section id=\"intake\" class=\"hide\">\n    <div class=\"card\">\n      <b>ליד חדש — הדבק טקסט חופשי</b>\n      <p class=\"muted\">שיחה / וואטסאפ / SMS / הערה. \"נתח\" ימלא טופס מראש (ניתן לעריכה).</p>\n      <textarea id=\"intakeText\" placeholder=\"דיברתי עם אבי מחברת כהן ביצוע. צריך 6 טפסנים באזור רחובות לעוד שבועיים. אין מגורים. ביקש פרטים והסכם.\"></textarea>\n      <div class=\"row\"><button class=\"primary\" onclick=\"analyzeIntake()\">נתח</button><button class=\"ghost\" onclick=\"startDictation('intakeText')\">🎤 הקראה</button><button class=\"ghost\" onclick=\"loadDemoText()\">טען דוגמה</button><span id=\"dupTag\"></span></div>\n    </div>\n    <div id=\"intakeResult\" class=\"hide\"></div>\n  </section>\n\n  <section id=\"summary\" class=\"hide\">\n    <div class=\"card\">\n      <b>סיכום שיחה</b>\n      <p class=\"muted\">הדבק תמלול או סיכום חופשי. נחזיר תיעוד מובנה + עדכון לטבלה 1.</p>\n      <label>טלפון מנורמל של הלקוח</label><input id=\"sumPhone\" placeholder=\"0501234567\">\n      <label>סיכום / תמלול</label><textarea id=\"sumText\" placeholder=\"מעוניין, ביקש הסכם, חושש מקצב עבודה...\"></textarea>\n      <div class=\"row\"><button class=\"primary\" onclick=\"analyzeSummary()\">נתח</button><button class=\"ghost\" onclick=\"startDictation('sumText')\">🎤 הקראה</button></div>\n    </div>\n    <div id=\"sumResult\" class=\"hide\"></div>\n  </section>\n\n  <section id=\"agreements\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">הסכמים פתוחים ותקועים</b><button class=\"ghost\" onclick=\"loadAll(renderAgreements,true)\">רענן</button></div></div>\n    <div id=\"agList\"></div>\n  </section>\n\n  <section id=\"corp\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">ממתינים לתאגיד / שיבוץ</b><button class=\"ghost\" onclick=\"loadAll(renderCorp,true)\">רענן</button></div></div>\n    <div id=\"corpList\"></div>\n  </section>\n\n  <section id=\"active\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">לקוחות פעילים — שביעות רצון</b><button class=\"ghost\" onclick=\"loadAll(renderActive,true)\">רענן</button></div></div>\n    <div id=\"actList\"></div>\n  </section>\n\n  <section id=\"commiss\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">עמלות וגבייה — פערים</b><button class=\"ghost\" onclick=\"exportCommiss()\">ייצוא Excel</button><button class=\"ghost\" onclick=\"loadAll(renderCommiss,true)\">רענן</button></div></div>\n    <div id=\"cmSummary\" class=\"sumbar\"></div><div id=\"cmList\"></div>\n  </section>\n\n  <section id=\"manager\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">דוח מנהל</b><button class=\"ghost\" onclick=\"loadAll(renderManager,true)\">רענן</button></div></div>\n    <div id=\"mgKpi\" class=\"kpi\"></div><div id=\"mgChart\"></div><div id=\"mgText\"></div>\n  </section>\n\n  <section id=\"marketing\" class=\"hide\">\n    <div class=\"card\"><b>שיווק והודעות</b><p class=\"muted\">בחר קהל → קבל נוסחים מוכנים לכל ערוץ.</p>\n      <select id=\"mkAud\" onchange=\"renderMarketing()\"></select></div>\n    <div id=\"mkOut\"></div>\n  </section>\n\n  <section id=\"quality\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">בקרת איכות נתונים</b><button class=\"ghost\" onclick=\"loadAll(renderQuality,true)\">רענן</button></div></div>\n    <div id=\"qSummary\" class=\"sumbar\"></div><div id=\"qList\"></div>\n  </section>\n\n  <section id=\"knowledge\" class=\"hide\">\n    <div class=\"card\"><b>מרכז ידע ותסריטים</b><p class=\"muted\">חפש או לחץ שאלה לתשובה קצרה ופרקטית.</p><input id=\"kbSearch\" placeholder=\"חיפוש לפי מילה (מחיר, מגורים, איטי, תאגיד...)\" oninput=\"initKnowledge(true)\" aria-label=\"חיפוש במרכז הידע\"><div id=\"kbQ\" style=\"margin-top:8px\"></div></div>\n    <div id=\"kbA\"></div>\n  </section>\n\n  <section id=\"features\" class=\"hide\">\n    <div id=\"featList\"></div>\n  </section>\n\n  <section id=\"mgr\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\">\n      <b style=\"flex:1\">מנהלי עבודה — השמה</b>\n      <button id=\"mgrTabOpen\" class=\"ghost\" onclick=\"mgrSwitch('open')\">פולואפ</button>\n      <button id=\"mgrTabCand\" class=\"primary\" onclick=\"mgrSwitch('cand')\">מועמדים</button>\n      <button id=\"mgrTabCon\" class=\"ghost\" onclick=\"mgrSwitch('con')\">קבלנים</button>\n      <button id=\"mgrTabProj\" class=\"ghost\" onclick=\"mgrSwitch('proj')\">פרויקטים</button>\n      <button id=\"mgrTabPlace\" class=\"ghost\" onclick=\"mgrSwitch('place')\">השמות</button>\n    </div>\n    <div class=\"row\" style=\"margin-top:8px\"><input id=\"mgrSearch\" placeholder=\"חיפוש\" oninput=\"renderMgr()\" style=\"flex:1\"><button class=\"ghost\" onclick=\"mgrReload()\">רענן</button></div></div>\n    <div id=\"mgrSummary\" class=\"sumbar\"></div>\n    <div id=\"mgrList\"></div>\n  </section>\n\n</div>\n\n\n";
+var GP_CSS = "\n  :root{\n    --accent:#2f6fed; --accent-bg:#e9f0fe; --accent-bd:#bcd3fb;\n    --ok:#1d9e75; --ok-bg:#e1f5ee; --warn:#ba7517; --warn-bg:#faeeda;\n    --danger:#d8443c; --danger-bg:#fbeae9;\n    --ink:#1c1c1a; --muted:#6b6a64; --line:#e4e2da; --card:#fff; --page:#f7f6f1; --r:10px; --soft:#f3f2ec;\n  }\n  body.dark{--ink:#e8e6e0;--muted:#a3a199;--line:#34332f;--card:#23231f;--page:#1a1a17;--soft:#2a2a25;--accent-bg:#16233a;--accent-bd:#244266;--ok-bg:#10231d;--warn-bg:#2a2110;--danger-bg:#2c1614;}\n  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}\n  @media print{header,.row,.tile,#mkAud,#kbSearch{display:none!important}.card,.task{break-inside:avoid}body{background:#fff}}\n  *{box-sizing:border-box}\n  html,body{max-width:100%;overflow-x:hidden}\n  body{margin:0;font-family:\"Segoe UI\",Arial,sans-serif;background:var(--page);color:var(--ink);line-height:1.6}\n  .card,.task,.msgbox,.tile,.kpi div{overflow-wrap:anywhere;word-break:break-word}\n  svg,img,pre{max-width:100%}\n  header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}\n  header h1{font-size:18px;margin:0;font-weight:600;flex:1}\n  .wrap{max-width:920px;margin:0 auto;padding:18px}\n  button{font-family:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);padding:9px 14px;font-size:14px;color:var(--ink)}\n  button:hover{border-color:#bbb}\n  .primary{background:var(--accent);color:#fff;border-color:var(--accent)}\n  .ok{background:var(--ok);color:#fff;border-color:var(--ok)}\n  .ghost{background:transparent}\n  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}\n  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 12px;text-align:center;font-size:15px;font-weight:600}\n  .tile:hover{border-color:var(--accent);color:var(--accent)}\n  .tile small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:4px}\n  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}\n  textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--ink)}\n  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}\n  input,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-family:inherit;font-size:14px;background:var(--card);color:var(--ink)}\n  .form{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}\n  .form .full{grid-column:1/3}\n  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}\n  pre{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-size:12px;direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all}\n  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;border:1px solid}\n  .t-new{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd)}\n  .t-exist{background:var(--warn-bg);color:var(--warn);border-color:#e5cfa0}\n  .hide{display:none}\n  .muted{color:var(--muted);font-size:13px}\n  .task{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#fff}\n  .task .b{width:6px;border-radius:3px;align-self:stretch}\n  .b-hot{background:var(--danger)} .b-warn{background:var(--warn)} .b-ok{background:var(--ok)} .b-mut{background:#cfcdc5}\n  .pill{font-size:11px;color:var(--muted);background:#f0efe9;border-radius:12px;padding:1px 7px}\n  .sumbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}\n  .sumbar div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}\n  .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:12px}\n  .kpi div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}\n  .kpi b{display:block;font-size:22px}\n  .kpi span{font-size:12px;color:var(--muted)}\n  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:20}\n  .modal{background:#fff;border-radius:12px;padding:18px;max-width:440px;width:90%;max-height:85vh;overflow-y:auto}\n  .msgbox{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px;margin-top:6px}\n  h3{margin:18px 0 8px;font-size:15px}\n  .bottomnav{display:none}\n  @media(max-width:560px){\n    .wrap{padding:10px}\n    .form{grid-template-columns:1fr}\n    .form .full{grid-column:1}\n    .kpi{grid-template-columns:repeat(2,1fr)}\n    header{gap:6px 8px;padding:9px 10px;flex-wrap:wrap}\n    header h1{font-size:14px;flex:1 1 100%;margin-bottom:2px}\n    .grid{grid-template-columns:repeat(2,1fr);gap:8px}\n    .tile{padding:18px 10px;min-height:72px;font-size:14px}\n    button{padding:11px 12px;min-height:44px}\n    input,select,textarea{font-size:16px}\n    .task{flex-wrap:wrap;gap:8px}\n    .task .row{gap:6px}\n    .task button{min-height:auto;padding:9px 14px;flex:0 0 auto;font-size:14px;white-space:nowrap}\n    .sumbar div{flex:1 1 45%;text-align:center}\n    .kpi b{font-size:20px}\n    body{padding-bottom:64px}\n    .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:10}\n    .bottomnav button{flex:1;border:none;border-radius:0;background:transparent;padding:7px 2px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--muted)}\n    .bottomnav button.active{color:var(--accent)}\n    .bottomnav button .ic{font-size:18px;line-height:1}\n  }\n";
+var GP_HTML = "\n<header>\n  <h1>אנשים טובים – עובדים זרים והשמה</h1>\n  <span id=\"connDot\" class=\"pill\">לא מחובר</span>\n  <span id=\"busy\" class=\"pill\" style=\"display:none\">⏳ טוען…</span>\n  <button class=\"ghost\" onclick=\"show('home')\">בית</button>\n  <button class=\"ghost\" id=\"darkBtn\" onclick=\"toggleDark()\" aria-label=\"החלף מצב כהה\">🌙</button>\n  <button class=\"ghost\" onclick=\"window.print()\" aria-label=\"הדפסה או PDF\">🖨</button>\n  <button class=\"ghost\" onclick=\"openCfg()\" aria-label=\"הגדרות\" style=\"display:none\">⚙ הגדרות</button>\n</header>\n<div class=\"wrap\">\n\n  <section id=\"home\">\n    <div class=\"row\" style=\"margin-bottom:10px;gap:8px\">\n      <button id=\"modeZ\" class=\"primary\" style=\"flex:1;font-size:15px;font-weight:600\" onclick=\"setMode('z')\">👷‍♂️ עובדים זרים</button>\n      <button id=\"modeM\" class=\"ghost\" style=\"flex:1;font-size:15px;font-weight:600\" onclick=\"setMode('m')\">🧑‍💼 מנהלי עבודה</button>\n    </div>\n\n    <div id=\"homeZ\">\n      <div id=\"homeNow\"></div>\n      <div class=\"grid\">\n        <div class=\"tile\" onclick=\"show('control')\" style=\"grid-column:1/-1;border-color:var(--accent);color:var(--accent);font-size:16px\">🎯 מוקד היום<small>לעבוד לפי דחיפות — מה עכשיו (פולואפים + וואטסאפ + תקועים)</small></div>\n        <div class=\"tile\" onclick=\"show('clients')\">👥 לקוחות<small>לחפש ולנהל — כל לקוח (גם סגור) + היסטוריה</small></div>\n        <div class=\"tile\" onclick=\"show('intakeHub')\">📥 קליטה<small>ליד חדש · סיכום · וואטסאפ</small></div>\n        <div class=\"tile\" onclick=\"show('insights')\">📊 תובנות<small>דוח מנהל · עמלות · איכות</small></div>\n        <div class=\"tile\" onclick=\"show('more')\">⋯ עוד<small>שיווק · ידע · מדריך · לפי שלב</small></div>\n      </div>\n      <p class=\"muted\" style=\"margin-top:8px\">מקור האמת: AppSheet / Google Sheets. המסך הזה הוא שכבת הפעולה החכמה.</p>\n    </div>\n\n    <div id=\"homeM\" class=\"hide\">\n      <div id=\"homeNowM\"></div>\n      <div class=\"grid\">\n        <div class=\"tile\" onclick=\"openMgr('open')\" style=\"grid-column:1/-1;border-color:var(--accent);color:var(--accent);font-size:16px\">🎯 מוקד היום<small>לעבוד לפי דחיפות — מועמדים בלי ראיון + קבלנים פתוחים</small></div>\n        <div class=\"tile\" onclick=\"openMgr('cand')\">👥 מאגר<small>לחפש ולנהל — כל הרשומות (מועמדים · קבלנים · פרויקטים · השמות)</small></div>\n        <div class=\"tile\" onclick=\"show('wa')\">📥 קליטה<small>וואטסאפ נכנס (מנהלים)</small></div>\n        <div class=\"tile\" onclick=\"openMgr('place')\">📊 עמלות והשמות<small>חיבור + כסף</small></div>\n        <div class=\"tile\" onclick=\"show('guideM')\">📖 מדריך<small>כל כפתור וזרימה</small></div>\n      </div>\n      <p class=\"muted\" style=\"margin-top:8px\">שכבת פעולה — דוחפת פתוחים ומתעדכנת מול אפליקציית הראיונות ו‑AppSheet.</p>\n    </div>\n  </section>\n\n  <section id=\"control\" class=\"hide\">\n    <div class=\"card\" style=\"border-color:var(--accent)\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">🎯 מוקד היום</b><button class=\"ghost\" onclick=\"renderControl()\">רענן</button></div>\n      <p class=\"muted\" style=\"margin:4px 0 0\">כל מה שצריך טיפול היום — פולואפים, וואטסאפ ממתין, ותקועים — במקום אחד, מדורג.</p></div>\n    <div id=\"controlSummary\" class=\"sumbar\"></div>\n    <div id=\"controlList\"></div>\n  </section>\n\n  <section id=\"more\" class=\"hide\">\n    <div class=\"card\"><b>⋯ עוד</b><p class=\"muted\" style=\"margin:4px 0 0\">כלים משניים — לא ליום-יום.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" onclick=\"show('marketing')\">שיווק והודעות<small>קהלים + נוסחים</small></div>\n      <div class=\"tile\" onclick=\"show('quality')\">בקרת איכות<small>רשומות חסרות/כפילויות</small></div>\n      <div class=\"tile\" onclick=\"show('knowledge')\">מרכז ידע<small>תסריטים ותשובות</small></div>\n      <div class=\"tile\" onclick=\"show('guideZ')\">📖 מדריך מלא<small>כל כפתור וזרימה</small></div>\n      <div class=\"tile\" onclick=\"show('features')\">⭐ פיצ'רים<small>מה יש במערכת</small></div>\n      <div class=\"tile\" data-sec=\"agreements\" onclick=\"show('agreements')\">הסכמים תקועים<small>לפי שלב</small></div>\n      <div class=\"tile\" data-sec=\"corp\" onclick=\"show('corp')\">ממתינים לתאגיד<small>לפי שלב</small></div>\n      <div class=\"tile\" data-sec=\"active\" onclick=\"show('active')\">לקוחות פעילים<small>לפי שלב</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"intakeHub\" class=\"hide\">\n    <div class=\"card\"><b>📥 קליטה</b><p class=\"muted\" style=\"margin:4px 0 0\">כל מה שנכנס — במקום אחד.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" onclick=\"show('wa')\">📩 וואטסאפ נכנס<small>פניות לאישור</small></div>\n      <div class=\"tile\" data-sec=\"intake\" onclick=\"show('intake')\">ליד חדש<small>טקסט חופשי ← רשומה</small></div>\n      <div class=\"tile\" data-sec=\"summary\" onclick=\"show('summary')\">סכם שיחה<small>תמלול ← עדכון</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"insights\" class=\"hide\">\n    <div class=\"card\"><b>📊 תובנות</b><p class=\"muted\" style=\"margin:4px 0 0\">מספרים להחלטות.</p></div>\n    <div class=\"grid\" style=\"margin-top:10px\">\n      <div class=\"tile\" data-sec=\"manager\" onclick=\"show('manager')\">דוח מנהל<small>בוקר/סוף יום</small></div>\n      <div class=\"tile\" data-sec=\"commiss\" onclick=\"show('commiss')\">עמלות וגבייה<small>פערים</small></div>\n      <div class=\"tile\" data-sec=\"quality\" onclick=\"show('quality')\">בקרת איכות<small>רשומות חסרות</small></div>\n    </div>\n    <div class=\"row\" style=\"margin-top:12px\"><button class=\"ghost\" onclick=\"show('home')\">← חזרה לבית</button></div>\n  </section>\n\n  <section id=\"clients\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">🔎 חיפוש לקוח</b><input id=\"clientSearch\" placeholder=\"שם / חברה / טלפון\" oninput=\"renderClients()\" style=\"flex:1\"><button class=\"ghost\" onclick=\"loadAll(renderClients,true)\">רענן</button></div>\n      <div class=\"row\" style=\"margin-top:8px\"><button id=\"clSortRecent\" class=\"primary\" onclick=\"setClientSort('recent')\">מעודכנים אחרונה</button><button id=\"clSortAbc\" class=\"ghost\" onclick=\"setClientSort('abc')\">א-ב (לפי שם)</button></div>\n      <p class=\"muted\" style=\"margin:6px 0 0\">מוצא כל לקוח בכל סטטוס (גם אחרי \"סיים\"). ב\"א-ב\" אפשר לדפדף בכל הלקוחות בלי לחפש. 📜 היסטוריה = הציר הזמני המלא.</p></div>\n    <div id=\"clientsList\"></div>\n  </section>\n\n  <section id=\"guideZ\" class=\"hide\"><div id=\"guideZContent\" class=\"card\"></div></section>\n  <section id=\"guideM\" class=\"hide\"><div id=\"guideMContent\" class=\"card\"></div></section>\n\n  <section id=\"wa\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">וואטסאפ נכנס</b><button class=\"primary\" onclick=\"waPullNow()\">משוך עכשיו</button><button class=\"ghost\" onclick=\"waResetNow()\">רענן ממתינים (מקור+שם)</button><button id=\"waAutoBtn\" class=\"ghost\" onclick=\"waAutoToggle()\">⏱️ משיכה אוטומטית</button><button class=\"ghost\" onclick=\"waShowMuted()\">🔇 מושתקים</button><button class=\"ghost\" onclick=\"waTestNow()\">בדיקת חיבור</button></div>\n      <div class=\"row\" style=\"margin-top:8px\"><button id=\"waTabPend\" class=\"primary\" onclick=\"waSwitch('pend')\">ממתין לאישור</button><button id=\"waTabAppr\" class=\"ghost\" onclick=\"waSwitch('appr')\">מאושר — להעברה</button></div>\n      <p class=\"muted\" style=\"margin:6px 0 0\">משיכה בלבד. <b>אשר</b> = שומר אצלנו (לא נכתב לשום מקום). רק <b>העבר לגוגל שיט</b> כותב בפועל (זרים→לידים · מנהלים→מועמדים).</p></div>\n    <div id=\"waSummary\" class=\"sumbar\"></div>\n    <div id=\"waList\"></div>\n    <div class=\"card\" style=\"margin-top:14px\"><b>📝 בקשות והערות לקלוד</b>\n      <p class=\"muted\" style=\"margin:4px 0 6px\">הדבק כאן שמות קבוצות להשתקה, תיקונים, או כל בקשה. נצבר כאן ואטפל בהכל בבת אחת — פשוט תגיד לי \"תטפל בבקשות\".</p>\n      <textarea id=\"waNoteBox\" placeholder=\"לדוגמה: להשתיק את הקבוצה 'דרושים בנייה מרכז' · הכפתור X לא עובד · להוסיף שדה Y למועמדים\"></textarea>\n      <div class=\"row\"><button class=\"ok\" onclick=\"saveWaNote()\">שמור בקשה</button></div>\n      <div id=\"waNotesList\" style=\"margin-top:8px\"></div>\n    </div>\n  </section>\n\n  <section id=\"intake\" class=\"hide\">\n    <div class=\"card\">\n      <b>ליד חדש — הדבק טקסט חופשי</b>\n      <p class=\"muted\">שיחה / וואטסאפ / SMS / הערה. \"נתח\" ימלא טופס מראש (ניתן לעריכה).</p>\n      <textarea id=\"intakeText\" placeholder=\"דיברתי עם אבי מחברת כהן ביצוע. צריך 6 טפסנים באזור רחובות לעוד שבועיים. אין מגורים. ביקש פרטים והסכם.\"></textarea>\n      <div class=\"row\"><button class=\"primary\" onclick=\"analyzeIntake()\">נתח</button><button class=\"ghost\" onclick=\"startDictation('intakeText')\">🎤 הקראה</button><button class=\"ghost\" onclick=\"loadDemoText()\">טען דוגמה</button><span id=\"dupTag\"></span></div>\n    </div>\n    <div id=\"intakeResult\" class=\"hide\"></div>\n  </section>\n\n  <section id=\"summary\" class=\"hide\">\n    <div class=\"card\">\n      <b>סיכום שיחה</b>\n      <p class=\"muted\">הדבק תמלול או סיכום חופשי. נחזיר תיעוד מובנה + עדכון לטבלה 1.</p>\n      <label>טלפון מנורמל של הלקוח</label><input id=\"sumPhone\" placeholder=\"0501234567\">\n      <label>סיכום / תמלול</label><textarea id=\"sumText\" placeholder=\"מעוניין, ביקש הסכם, חושש מקצב עבודה...\"></textarea>\n      <div class=\"row\"><button class=\"primary\" onclick=\"analyzeSummary()\">נתח</button><button class=\"ghost\" onclick=\"startDictation('sumText')\">🎤 הקראה</button></div>\n    </div>\n    <div id=\"sumResult\" class=\"hide\"></div>\n  </section>\n\n  <section id=\"agreements\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">הסכמים פתוחים ותקועים</b><button class=\"ghost\" onclick=\"loadAll(renderAgreements,true)\">רענן</button></div></div>\n    <div id=\"agList\"></div>\n  </section>\n\n  <section id=\"corp\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">ממתינים לתאגיד / שיבוץ</b><button class=\"ghost\" onclick=\"loadAll(renderCorp,true)\">רענן</button></div></div>\n    <div id=\"corpList\"></div>\n  </section>\n\n  <section id=\"active\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">לקוחות פעילים — שביעות רצון</b><button class=\"ghost\" onclick=\"loadAll(renderActive,true)\">רענן</button></div></div>\n    <div id=\"actList\"></div>\n  </section>\n\n  <section id=\"commiss\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">עמלות וגבייה — פערים</b><button class=\"ghost\" onclick=\"exportCommiss()\">ייצוא Excel</button><button class=\"ghost\" onclick=\"loadAll(renderCommiss,true)\">רענן</button></div></div>\n    <div id=\"cmSummary\" class=\"sumbar\"></div><div id=\"cmList\"></div>\n  </section>\n\n  <section id=\"manager\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">דוח מנהל</b><button class=\"ghost\" onclick=\"loadAll(renderManager,true)\">רענן</button></div></div>\n    <div id=\"mgKpi\" class=\"kpi\"></div><div id=\"mgChart\"></div><div id=\"mgText\"></div>\n  </section>\n\n  <section id=\"marketing\" class=\"hide\">\n    <div class=\"card\"><b>שיווק והודעות</b><p class=\"muted\">בחר קהל → קבל נוסחים מוכנים לכל ערוץ.</p>\n      <select id=\"mkAud\" onchange=\"renderMarketing()\"></select></div>\n    <div id=\"mkOut\"></div>\n  </section>\n\n  <section id=\"quality\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\"><b style=\"flex:1\">בקרת איכות נתונים</b><button class=\"ghost\" onclick=\"loadAll(renderQuality,true)\">רענן</button></div></div>\n    <div id=\"qSummary\" class=\"sumbar\"></div><div id=\"qList\"></div>\n  </section>\n\n  <section id=\"knowledge\" class=\"hide\">\n    <div class=\"card\"><b>מרכז ידע ותסריטים</b><p class=\"muted\">חפש או לחץ שאלה לתשובה קצרה ופרקטית.</p><input id=\"kbSearch\" placeholder=\"חיפוש לפי מילה (מחיר, מגורים, איטי, תאגיד...)\" oninput=\"initKnowledge(true)\" aria-label=\"חיפוש במרכז הידע\"><div id=\"kbQ\" style=\"margin-top:8px\"></div></div>\n    <div id=\"kbA\"></div>\n  </section>\n\n  <section id=\"features\" class=\"hide\">\n    <div id=\"featList\"></div>\n  </section>\n\n  <section id=\"mgr\" class=\"hide\">\n    <div class=\"card\"><div class=\"row\" style=\"margin:0\">\n      <b style=\"flex:1\">מנהלי עבודה — השמה</b>\n      <button id=\"mgrTabOpen\" class=\"ghost\" onclick=\"mgrSwitch('open')\">פולואפ</button>\n      <button id=\"mgrTabCand\" class=\"primary\" onclick=\"mgrSwitch('cand')\">מועמדים</button>\n      <button id=\"mgrTabCon\" class=\"ghost\" onclick=\"mgrSwitch('con')\">קבלנים</button>\n      <button id=\"mgrTabProj\" class=\"ghost\" onclick=\"mgrSwitch('proj')\">פרויקטים</button>\n      <button id=\"mgrTabPlace\" class=\"ghost\" onclick=\"mgrSwitch('place')\">השמות</button>\n    </div>\n    <div class=\"row\" style=\"margin-top:8px\"><input id=\"mgrSearch\" placeholder=\"חיפוש\" oninput=\"renderMgr()\" style=\"flex:1\"><button class=\"ghost\" onclick=\"mgrReload()\">רענן</button></div></div>\n    <div id=\"mgrSummary\" class=\"sumbar\"></div>\n    <div id=\"mgrList\"></div>\n  </section>\n\n</div>\n\n\n";
 try{document.title="אנשים טובים – עובדים זרים";}catch(e){}
 (function(){var s=document.createElement("style");s.textContent=GP_CSS;document.head.appendChild(s);document.body.innerHTML=GP_HTML;})();
 
@@ -39,7 +39,9 @@ function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
 let DEMO_MODE=false, HOURS_DEMO=false, _cacheAt=0;
-const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone','waMute','waMove','waAutoOn','waAutoOff','logActivity','agentApprove','agentReject'];
+const WRITE_ACTIONS=['append','update','upsert','appendNote','waApprove','waApproveMany','waPush','waPushMany','waReject','waRejectMany','waMoveMany','waResetPending','waNote','waNoteDone','waMute','waUnmute','waMove','waAutoOn','waAutoOff','logActivity','agentApprove','agentReject'];
+// רק כתיבות שנוגעות בלידים/שעות מחייבות שליפה מחדש — אישור וואטסאפ/סוכן/יומן לא מפיל את ה-cache של 763 שורות
+const CACHE_INVALIDATING=['append','update','upsert','appendNote','waPush','waPushMany','waResetPending'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
   if(DEMO_MODE){
@@ -54,7 +56,7 @@ async function gw(payload){
     let res;
     if(embedded()){res=await new Promise((resolve,reject)=>{google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e.message||'server_error'))).api(payload)})}
     else{const c=cfg();if(!c.url)throw new Error('no_gateway');const r=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:c.token,...payload})});res=await r.json();}
-    if(payload&&WRITE_ACTIONS.indexOf(payload.action)>-1)_cacheAt=0; // כתיבה מבטלת cache
+    if(payload&&CACHE_INVALIDATING.indexOf(payload.action)>-1)_cacheAt=0; // רק כתיבה ללידים/שעות מבטלת cache
     return res;
   }finally{busy(false)}
 }
@@ -111,6 +113,10 @@ function extract(t){
 
 const F1=['שם הלקוח','חברה','טלפון','טלפון מנורמל','ח.פ.','שם התאגיד','אזור עבודה','כמות עובדים שלד','כמות עובדים גמרים','סוג עובדים','תאור הפרויקט','לכמה זמן','דירוג אשראי','בעבודה','מתי לפנות שוב','הערות'];
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/`/g,'&#96;')}
+// לשיבוץ ערך בתוך מחרוזת-JS שבתוך onclick: קידוד \uXXXX שהדפדפן לא מפענח חזרה (esc רגיל לא מגן שם — HTML entities מפוענחים לפני שה-JS רץ)
+function escJs(s){return String(s==null?'':s).replace(/[\\'"<>&\r\n\u2028\u2029]/g,function(c){return '\\u'+('000'+c.charCodeAt(0).toString(16)).slice(-4)})}
+// סגירת כל מודאל בלחיצה על הרקע (המסך בתוך iframe — אין כפתור "אחורה" של הדפדפן)
+if(document.addEventListener)document.addEventListener('click',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('modal-bg'))e.target.remove()});
 function field(k,inner){return '<div><label>'+k+'</label>'+inner+'</div>'}
 function sel(k,opts,v){return '<select data-k="'+k+'">'+opts.map(o=>'<option '+(o==v?'selected':'')+'>'+o+'</option>').join('')+'</select>'}
 function aiExtractClient(t){busy(true);return new Promise(res=>{const done=v=>{busy(false);res(v)};try{google.script.run.withSuccessHandler(done).withFailureHandler(()=>done(null)).aiExtract(t)}catch(e){done(null)}})}
@@ -156,10 +162,11 @@ async function sendSummary(np){
   if(!np){alert('צריך טלפון מנורמל של הלקוח כדי לעדכן בבטחה (אחרת עלולה להידרס רשומה שגויה).');return}
   if(!hasBackend()){alert('אין חיבור — העתק JSON.');return}
   try{
-    let prev='';try{const g=await gw({action:'get',table:cfg().t1||'',sheetId:leadsId(),filter:{'טלפון מנורמל':np}});if(g.ok&&g.rows&&g.rows[0])prev=g.rows[0]['הערות']||''}catch(e){}
+    // צירוף ההערה בצד השרת תחת נעילה — קריאה אחת, בלי לדרוס הערה שנכתבה במקביל
     const j=buildSumJson(np);
-    if(prev&&j.set['הערות'])j.set['הערות']=prev+' | '+j.set['הערות'];
-    const res=await gw(j);alert(res.ok?'עודכן ✓ (ההערה צורפה)':'שגיאה: '+res.error)
+    const note=j.set['הערות']||'';delete j.set['הערות'];
+    const res=await gw({action:'appendNote',table:j.table,sheetId:j.sheetId,key:j.key,text:note,set:j.set});
+    alert(res.ok?'עודכן ✓ (ההערה צורפה)':'שגיאה: '+res.error)
   }catch(e){alert('שגיאת חיבור. '+e.message)}
 }
 
@@ -169,8 +176,14 @@ async function loadAll(cb,force){
   if(hasBackend()){
     if(!force&&_cacheAt&&!DEMO_MODE&&(Date.now()-_cacheAt)<30000){try{if(cb)cb()}catch(e){}return;} // cache: לא לשלוף שוב תוך 30ש' (חוסך קריאת 763 שורות בכל מעבר מסך)
     LOAD_ERR='';let okL=false,okH=false;
-    try{const a=await gw({action:'get',table:cfg().t1||'',sheetId:leadsId()});if(a&&a.ok){LEADS=a.rows;okL=true}else if(a&&a.error){LOAD_ERR='לידים: '+a.error}}catch(e){LOAD_ERR='לידים: '+((e&&e.message)||e)}
-    try{const b=await gw({action:'get',table:cfg().t2||'',sheetId:hoursId()});if(b&&b.ok){ROWS=b.rows;okH=true}}catch(e){}
+    // שתי השליפות במקביל — חוצה את זמן ההמתנה בפתיחה
+    const [a,b]=await Promise.all([
+      gw({action:'get',table:cfg().t1||'',sheetId:leadsId()}).catch(e=>({_err:(e&&e.message)||String(e)})),
+      gw({action:'get',table:cfg().t2||'',sheetId:hoursId()}).catch(()=>null)
+    ]);
+    if(a&&a.ok){LEADS=a.rows;okL=true}else if(a&&(a.error||a._err)){LOAD_ERR='לידים: '+(a.error||a._err)}
+    if(b&&b.ok){ROWS=b.rows;okH=true}
+    checkHeaders();
     if(!okL)LEADS=DEMO_LEADS;
     _cacheAt=okL?Date.now():0;
     DEMO_MODE=!okL;applyDemoBanner();
@@ -180,6 +193,18 @@ async function loadAll(cb,force){
     return;
   }
   LEADS=DEMO_LEADS;ROWS=DEMO_HOURS;DEMO_MODE=true;HOURS_DEMO=true;applyDemoBanner();if(cb)cb();
+}
+// בדיקת כותרות חד-פעמית: שינוי שם עמודה ב-AppSheet מתגלה מיד בבאנר, לא נשבר בשקט
+let _hdrChecked=false;
+async function checkHeaders(){
+  if(_hdrChecked||!hasBackend())return;_hdrChecked=true;
+  try{const a=await gw({action:'headerCheck'});
+    if(a&&a.ok===false&&a.problems&&a.problems.length){
+      let b=document.getElementById('hdrBanner');
+      if(!b){b=document.createElement('div');b.id='hdrBanner';b.style.cssText='position:sticky;top:0;z-index:9998;background:#b06000;color:#fff;padding:6px 12px;text-align:center;font-size:13px';document.body.insertBefore(b,document.body.firstChild)}
+      b.textContent='⚠ שינוי במבנה הגיליון: '+a.problems.slice(0,3).join(' · ')+' — עדכונים עלולים לא להישמר. ספר לקלוד.';
+    }
+  }catch(e){}
 }
 // באנר אזהרה כשגיליון השעות לא זמין — כדי שמספרי כסף דמו לא ייראו אמיתיים
 function hoursDemoBanner(){return HOURS_DEMO?'<div class="card" style="border-color:var(--danger)"><b style="color:var(--danger)">⛔ גיליון השעות לא זמין — כל מספרי הכסף במסך הזה הם דמו בלבד!</b><div class="muted" style="margin-top:2px">כדי לראות מספרים אמיתיים: לשתף את גיליון השעות עם החשבון הזה, ואז רענן.</div></div>':''}
@@ -233,26 +258,55 @@ function computeTasks(){
   const ord={hot:0,warn:1,ok:2};tasks.sort((a,b)=>(ord[a.lvl]-ord[b.lvl])||(b.score-a.score));return tasks;
 }
 // 🎯 מוקד היום — worklist מאוחד: פולואפים + וואטסאפ ממתין + תקועים, במקום אחד
-let CTL=[];
+let CTL=[],_ctlBan='';
+function _ctlList(){
+  const el=document.getElementById('controlList');if(!el)return;
+  el.innerHTML=_ctlBan+CTL.map((t,i)=>{
+    const wa=t.phone?'<button class="ok" onclick="waSend(\''+String(t.phone).replace(/\D/g,'')+'\')">וואטסאפ</button>':'';
+    return '<div class="task"><div class="b b-'+t.lvl+'"></div><div style="flex:1"><b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="ctlSnooze('+i+')">טופל (שבוע)</button><button class="ghost" onclick="ctlClose('+i+')">סיים</button><button class="ghost" onclick="ctlTreat('+i+')">טיפול</button><button class="ghost" onclick="openClientCard(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">→ כרטיס מלא</button><button class="ghost" onclick="openHistory(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">📜 היסטוריה</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill">'+t.score+'</span></div></div>';
+  }).join('')||(_ctlBan?_ctlBan:'<p class="muted">אין פולואפים להיום 👍</p>');
+  if(_ctlBan&&!CTL.length)el.innerHTML=_ctlBan;
+}
+function _ctlSummary(waN,agentN){
+  const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
+  const sum=document.getElementById('controlSummary');
+  if(sum)sum.innerHTML='<div><b>'+CTL.length+'</b> פולואפים</div><div>🔴 '+CTL.filter(t=>t.lvl=='hot').length+' דחופים</div>'+(waN?'<div>📩 '+waN+' וואטסאפ</div>':'')+(stuck.length?'<div>⚠ '+stuck.length+' תקועים</div>':'')+(agentN?'<div>🤖 '+agentN+' סוכן</div>':'');
+}
 function renderControl(){
-  loadAll(async function(){
-    const tasks=computeTasks();CTL=tasks;
+  loadAll(function(){
+    CTL=computeTasks();
     const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
-    let waN=0,agent=[];if(hasBackend()){try{const a=await gw({action:'waPending'});if(a&&a.ok)waN=(a.rows||[]).filter(waModeMatch).length;}catch(e){}try{const ag=await gw({action:'agentPending',business:waMode()=='m'?'מנהלים':'זרים'});if(ag&&ag.ok)agent=ag.rows||[];}catch(e){}}
-    const sum=document.getElementById('controlSummary');if(sum)sum.innerHTML='<div><b>'+tasks.length+'</b> פולואפים</div><div>🔴 '+tasks.filter(t=>t.lvl=='hot').length+' דחופים</div>'+(waN?'<div>📩 '+waN+' וואטסאפ</div>':'')+(stuck.length?'<div>⚠ '+stuck.length+' תקועים</div>':'')+(agent.length?'<div>🤖 '+agent.length+' סוכן</div>':'');
-    let ban='';
-    if(agent.length)ban+='<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b>'+agent.map(r=>'<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI('+r._row+')">אשר</button><button class="ghost" onclick="agentRejectUI('+r._row+')">דחה</button></div></div></div>').join('')+'</div>';
-    if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
-    if(stuck.length)ban+='<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>';
-    const el=document.getElementById('controlList');if(!el)return;
-    el.innerHTML=ban+tasks.map((t,i)=>{
-      const wa=t.phone?'<button class="ok" onclick="waSend(\''+String(t.phone).replace(/\D/g,'')+'\')">וואטסאפ</button>':'';
-      return '<div class="task"><div class="b b-'+t.lvl+'"></div><div style="flex:1"><b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="ctlSnooze('+i+')">טופל (שבוע)</button><button class="ghost" onclick="ctlClose('+i+')">סיים</button><button class="ghost" onclick="ctlTreat('+i+')">טיפול</button><button class="ghost" onclick="openClientCard(\''+esc(String(t.phone))+'\',\''+esc(t.c)+'\')">→ כרטיס מלא</button><button class="ghost" onclick="openHistory(\''+esc(String(t.phone))+'\',\''+esc(t.c)+'\')">📜 היסטוריה</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill">'+t.score+'</span></div></div>';
-    }).join('')||(ban?'':'<p class="muted">אין פולואפים להיום 👍</p>');
+    // ציור מיידי: פולואפים + תקועים (מקומי) — בלי לחכות לשרת
+    _ctlBan=stuck.length?'<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>':'';
+    _ctlSummary(0,0);_ctlList();
+    // באנרי וואטסאפ+סוכן נטענים במקביל וברקע — מודבקים כשמגיעים
+    if(!hasBackend())return;
+    Promise.all([
+      gw({action:'waPending'}).catch(()=>null),
+      gw({action:'agentPending',business:waMode()=='m'?'מנהלים':'זרים'}).catch(()=>null)
+    ]).then(function(rs){
+      const a=rs[0],ag=rs[1];
+      const waN=(a&&a.ok)?(a.rows||[]).filter(waModeMatch).length:0;
+      const agent=(ag&&ag.ok)?(ag.rows||[]):[];
+      let ban='';
+      if(agent.length)ban+='<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b>'+agent.map(r=>'<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI('+r._row+')">אשר</button><button class="ghost" onclick="agentRejectUI('+r._row+')">דחה</button></div></div></div>').join('')+'</div>';
+      if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
+      const stuck2=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
+      if(stuck2.length)ban+='<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck2.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>';
+      _ctlBan=ban;_ctlSummary(waN,agent.length);_ctlList();
+    });
   });
 }
-async function ctlSnooze(i){const t=CTL[i];if(!t)return;await snoozeLead(t.phone,7);renderControl();}
-async function ctlClose(i){const t=CTL[i];if(!t)return;const set=t.close||{'מתי לפנות שוב':'','עדכון אחרון':todayISO()};const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(t.phone));if(row)Object.assign(row,set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור');return}}toast('נסגר ✓');logAct(t.phone,'ליד','סיים משימה','');renderControl();}
+// פעולה אופטימית: הכרטיס יורד מהרשימה מיד, הסנכרון רץ ברקע; בכשל — שליפה מחדש והכרטיס חוזר
+function _ctlDrop(i){CTL.splice(i,1);_ctlSummary(0,0);_ctlList();}
+async function ctlSnooze(i){const t=CTL[i];if(!t)return;_ctlDrop(i);const ok=await snoozeLead(t.phone,7);if(ok===false)renderControl();}
+async function ctlClose(i){
+  const t=CTL[i];if(!t)return;_ctlDrop(i);
+  const set=t.close||{'מתי לפנות שוב':'','עדכון אחרון':todayISO()};
+  const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(t.phone));if(row)Object.assign(row,set);
+  if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));renderControl();return}}catch(e){toast('⚠ שגיאת חיבור');renderControl();return}}
+  toast('נסגר ✓');logAct(t.phone,'ליד','סיים משימה','');
+}
 function ctlTreat(i){const t=CTL[i];if(!t)return;openTreat(t.phone,t.c);}
 function _agentRefresh(){const m=document.getElementById('mgr');if(m&&!m.classList.contains('hide'))mgrReload();else renderControl();}
 async function agentApproveUI(row){if(!hasBackend())return;try{const a=await gw({action:'agentApprove',row:row});toast(a&&a.ok?'הצעת הסוכן אושרה ✓':'⚠');_agentRefresh();}catch(e){toast('שגיאת חיבור')}}
@@ -279,9 +333,10 @@ async function openHistory(phone,name){
 async function snoozeLead(phone,days){
   const set={'מתי לפנות שוב':plusDays(days),'עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
-  if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return}}
+  if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return false}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return false}}
   toast(days==1?'נדחה למחר ✓':'טופל — יחזור בעוד '+days+' ימים ✓');
   logAct(phone,'ליד',days==1?'נדחה למחר':'טופל (חוזר בעוד '+days+' ימים)','');
+  return true;
 }
 // "סיים" (מוקד היום) = סוגר את המשימה לתמיד (מנקה את מה שגרם לה). הלקוח נשאר בגיליון; פשוט לא מציק יותר.
 function openTreat(phone,name){
@@ -300,11 +355,11 @@ async function saveTreat(phone){
   if(!text){toast('כתוב מה הטיפול');return}
   if(!phone){toast('אין טלפון מזהה ללקוח');return}
   const line=todayISO().slice(5)+' בעיה: '+(type||'-')+' ('+sev+') | טיפול: '+text;
-  let prev='';
-  if(hasBackend()){try{const g=await gw({action:'get',table:cfg().t1||'',sheetId:leadsId(),filter:{'טלפון מנורמל':phone}});if(g.ok&&g.rows&&g.rows[0])prev=g.rows[0]['הערות']||''}catch(e){}}
-  const set={'הערות':(prev?prev+' | ':'')+line,'עדכון אחרון':todayISO(),'מתי לפנות שוב':plusDays(days)};
-  const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
-  if(hasBackend()){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set});toast(res.ok?'הטיפול נשמר אצל הלקוח ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  const set={'עדכון אחרון':todayISO(),'מתי לפנות שוב':plusDays(days)};
+  const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));
+  if(row){Object.assign(row,set);row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
+  // צירוף ההערה בצד השרת תחת נעילה — קריאה אחת במקום שתיים, בלי דריסות במקביל
+  if(hasBackend()){try{const res=await gw({action:'appendNote',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},text:line,set:set});toast(res.ok?'הטיפול נשמר אצל הלקוח ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הטיפול היה נשמר אצל הלקוח');
   logAct(phone,'ליד','טיפול',line);
   const m=document.querySelector('.modal-bg');if(m)m.remove();
@@ -516,8 +571,12 @@ async function loadCon(){
 function renderMgr(){ if(mgrView=='open')renderOpen(); else if(mgrView=='con')renderContractors(); else if(mgrView=='proj')renderProjects(); else if(mgrView=='place')renderPlacements(); else renderCandidates(); }
 async function loadOpen(){
   if(hasBackend()){
-    try{const a=await gw({action:'get',table:'',sheetId:SHEET_MANAGERS});if(a&&a.ok)MGRS=trimKeys(a.rows);}catch(e){}
-    try{const b=await gw({action:'get',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID});if(b&&b.ok)CON=trimKeys(b.rows);}catch(e){}
+    const [a,b]=await Promise.all([
+      gw({action:'get',table:'',sheetId:SHEET_MANAGERS}).catch(()=>null),
+      gw({action:'get',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID}).catch(()=>null)
+    ]);
+    if(a&&a.ok)MGRS=trimKeys(a.rows);
+    if(b&&b.ok)CON=trimKeys(b.rows);
   }
   if(!MGRS.length)MGRS=DEMO_MGRS;
   if(!CON.length)CON=DEMO_CON;
@@ -526,21 +585,22 @@ async function loadOpen(){
 function renderOpen(){
   const q=((document.getElementById('mgrSearch')||{}).value||'').trim();
   const items=[];
-  MGRS.forEach(r=>{if(r['שם מועמד']&&mgrNoInt(r))items.push({t:'מועמד',name:r['שם מועמד'],sub:(r['אזור עבודה מבוקש']||'—')+' · ללא ראיון',ph:mgrPhone(r),act:"openMgrAct('"+esc(String(r['ID מנהל עבודה']||''))+"')"});});
-  CON.forEach(r=>{const open=String(r['סגר']||'').indexOf('כן')<0;if(open&&(r['שם חברה']||r['איש קשר']))items.push({t:'קבלן',name:r['שם חברה']||r['איש קשר'],sub:(r['עיר']||r['אזור']||'—')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''),ph:mgrPhone({'טלפון':r['טלפון']}),act:"openConAct('"+esc(String(r['מזהה קבלן']||''))+"')"});});
+  MGRS.forEach(r=>{if(r['שם מועמד']&&mgrNoInt(r))items.push({t:'מועמד',name:r['שם מועמד'],sub:(r['אזור עבודה מבוקש']||'—')+' · ללא ראיון',ph:mgrPhone(r),act:"openMgrAct('"+escJs(String(r['ID מנהל עבודה']||''))+"')"});});
+  CON.forEach(r=>{const open=String(r['סגר']||'').indexOf('כן')<0;if(open&&(r['שם חברה']||r['איש קשר']))items.push({t:'קבלן',name:r['שם חברה']||r['איש קשר'],sub:(r['עיר']||r['אזור']||'—')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''),ph:mgrPhone({'טלפון':r['טלפון']}),act:"openConAct('"+escJs(String(r['מזהה קבלן']||''))+"')"});});
   let rows=items;
   if(q)rows=rows.filter(x=>(x.name+' '+x.sub).indexOf(q)>-1);
   document.getElementById('mgrSummary').innerHTML='<div><b>'+rows.length+'</b> לטיפול</div><div>👤 '+rows.filter(x=>x.t=='מועמד').length+' מועמדים</div><div>🏗️ '+rows.filter(x=>x.t=='קבלן').length+' קבלנים</div>';
   document.getElementById('mgrList').innerHTML=rows.map(x=>{
     const wa=x.ph?'<button class="ok" onclick="waSend(\''+x.ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-hot"></div><div style="flex:1"><span class="pill">'+x.t+'</span> <b>'+esc(x.name)+'</b><div class="muted" style="margin-top:2px">'+esc(x.sub)+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="'+x.act+'">פעולה/הערה</button><button class="ghost" onclick="openMgrCard(\''+(x.t=='קבלן'?'con':'cand')+'\',\''+esc(x.name)+'\')">→ כרטיס מלא</button>'+callBtn(x.ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-hot"></div><div style="flex:1"><span class="pill">'+x.t+'</span> <b>'+esc(x.name)+'</b><div class="muted" style="margin-top:2px">'+esc(x.sub)+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="'+x.act+'">פעולה/הערה</button><button class="ghost" onclick="openMgrCard(\''+(x.t=='קבלן'?'con':'cand')+'\',\''+escJs(x.name)+'\')">→ כרטיס מלא</button>'+callBtn(x.ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין פתוחים לטיפול 👍</p>';
   _mgrOpenBanners();
 }
 async function _mgrOpenBanners(){
   if(!hasBackend())return;let waN=0,agent=[];
-  try{const a=await gw({action:'waPending'});if(a&&a.ok)waN=(a.rows||[]).filter(r=>String(r['קטגוריה'])=='מנהלי עבודה').length;}catch(e){}
-  try{const ag=await gw({action:'agentPending',business:'מנהלים'});if(ag&&ag.ok)agent=ag.rows||[];}catch(e){}
+  const [a,ag]=await Promise.all([gw({action:'waPending'}).catch(()=>null),gw({action:'agentPending',business:'מנהלים'}).catch(()=>null)]);
+  if(a&&a.ok)waN=(a.rows||[]).filter(r=>String(r['קטגוריה'])=='מנהלי עבודה').length;
+  if(ag&&ag.ok)agent=ag.rows||[];
   const el=document.getElementById('mgrList');if(!el)return;let ban='';
   if(agent.length)ban+='<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b>'+agent.map(r=>'<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI('+r._row+')">אשר</button><button class="ghost" onclick="agentRejectUI('+r._row+')">דחה</button></div></div></div>').join('')+'</div>';
   if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ (מנהלים) ממתינות</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
@@ -557,7 +617,7 @@ function renderContractors(){
     const id=String(r['מזהה קבלן']||''),ph=mgrPhone({'טלפון':r['טלפון']});
     const sub=esc((r['עיר']||r['אזור']||'—')+(r['סוג קבלן']?' · '+r['סוג קבלן']:'')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''))+(r['חתם על הסכם']=='כן'?' · <span style="color:var(--ok)"><b>חתם</b></span>':'')+(open(r)?'':' · <span class="muted">נסגר</span>');
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+(open(r)?'hot':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם חברה']||r['איש קשר']||'—')+'</b>'+(r['איש קשר']&&r['שם חברה']?' <span class="muted">('+esc(r['איש קשר'])+')</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(r['סוגי פרויקטים']?'<div class="muted" style="font-size:12px;margin-top:1px">פרויקטים: '+esc(r['סוגי פרויקטים'])+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openConAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(String(r['טלפון']||''))+'\',\''+esc(r['שם חברה']||r['איש קשר']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'hot':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם חברה']||r['איש קשר']||'—')+'</b>'+(r['איש קשר']&&r['שם חברה']?' <span class="muted">('+esc(r['איש קשר'])+')</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(r['סוגי פרויקטים']?'<div class="muted" style="font-size:12px;margin-top:1px">פרויקטים: '+esc(r['סוגי פרויקטים'])+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openConAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(String(r['טלפון']||''))+'\',\''+escJs(r['שם חברה']||r['איש קשר']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין קבלנים.</p>';
 }
 function openConAct(id){
@@ -567,7 +627,7 @@ function openConAct(id){
     '<label>סטטוס קבלן (אופציונלי)</label><input id="conStat" placeholder="למשל: בטיפול / הוצע מועמד / נסגר">'+
     '<label>חתם על הסכם?</label><select id="conSign"><option value="">ללא שינוי</option><option value="כן">כן</option></select>'+
     '<label>לסגור את הקבלן?</label><select id="conClose"><option value="">ללא שינוי</option><option value="כן">כן, נסגר</option></select>'+
-    '<div class="row"><button class="ok" onclick="saveConAct(\''+esc(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div>'+
+    '<div class="row"><button class="ok" onclick="saveConAct(\''+escJs(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div>'+
     '<p class="muted">נשמר בטאב הקבלנים (מסתנכרן עם הראיונות ו-AppSheet).</p></div>';
   document.body.appendChild(bg);
 }
@@ -576,14 +636,13 @@ async function saveConAct(id){
   if(!note&&!stat&&!sign&&!close){toast('כתוב הערה או עדכן');return}
   if(!id){toast('אין מזהה קבלן');return}
   const row=CON.find(r=>String(r['מזהה קבלן'])===String(id));
-  const prev=row?(row['הערות']||''):'';
+  const line=note?todayISO().slice(5)+': '+note:'';
   const set={};
-  if(note)set['הערות']=(prev?prev+' | ':'')+todayISO().slice(5)+': '+note;
   if(stat)set['סטטוס קבלן']=stat;
   if(sign)set['חתם על הסכם']=sign;
   if(close)set['סגר']=close;
-  if(row)Object.assign(row,set);
-  if(hasBackend()){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID,key:{'מזהה קבלן':id},set});toast(res.ok?'נשמר אצל הקבלן ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  if(row){Object.assign(row,set);if(line)row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
+  if(hasBackend()){try{const res=await gw({action:'appendNote',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID,key:{'מזהה קבלן':id},text:line,set:set});toast(res.ok?'נשמר אצל הקבלן ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הפעולה הייתה נשמרת');
   if(row&&row['טלפון'])logAct(row['טלפון'],'קבלן','פעולה/הערה',note||stat||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
@@ -624,7 +683,7 @@ function renderProjects(){
   document.getElementById('mgrList').innerHTML=rows.map(r=>{
     const id=String(r['מזהה פרויקט']||''),con=lookupCon(r['מזהה קבלן']);
     const sub=esc((r['עיר']||'—')+(r['סוג פרויקט']?' · '+r['סוג פרויקט']:'')+(r['שלב ביצוע']?' · '+r['שלב ביצוע']:'')+(r['מספר פועלים']?' · '+r['מספר פועלים']+' פועלים':'')+(r['סטטוס פרויקט']?' · '+r['סטטוס פרויקט']:''));
-    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם פרויקט']||('פרויקט '+id))+'</b>'+(con?' <span class="muted">· '+esc(con)+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openProjAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(id)+'\',\''+esc(r['שם פרויקט']||('פרויקט '+id))+'\')">📜 היסטוריה</button></div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם פרויקט']||('פרויקט '+id))+'</b>'+(con?' <span class="muted">· '+esc(con)+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openProjAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\''+escJs(r['שם פרויקט']||('פרויקט '+id))+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין פרויקטים.</p>';
 }
 function renderPlacements(){
@@ -639,7 +698,7 @@ function renderPlacements(){
     const id=String(r['מזהה השמה']||''),pr=lookupProj(r['מזהה פרויקט']),mg=lookupCand(r['מזהה מנהל עבודה']);
     const cm=r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':'';
     const sub=esc((r['תחילת עבודה']||'')+(r['סיום עבודה']?' → '+r['סיום עבודה']:' (פעילה)')+(r['סטטוס השמה']?' · '+r['סטטוס השמה']:'')+(r['סטטוס תהליך']?' · '+r['סטטוס תהליך']:''));
-    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(id)+'\',\'השמה '+esc(id)+'\')">📜 היסטוריה</button></div></div></div>';
+    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\'השמה '+escJs(id)+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין השמות.</p>';
 }
 function openProjAct(id){
@@ -647,16 +706,17 @@ function openProjAct(id){
   bg.innerHTML='<div class="modal"><b>פעולה בפרויקט</b>'+
     '<label>מה נעשה / הערה</label><textarea id="projNote" placeholder="לדוגמה: סוכם מנהל עבודה, ממתין לתחילת עבודה"></textarea>'+
     '<label>סטטוס פרויקט (אופציונלי)</label><input id="projStat" placeholder="למשל: פעיל / ממתין / הסתיים">'+
-    '<div class="row"><button class="ok" onclick="saveProjAct(\''+esc(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div></div>';
+    '<div class="row"><button class="ok" onclick="saveProjAct(\''+escJs(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div></div>';
   document.body.appendChild(bg);
 }
 async function saveProjAct(id){
   const note=(document.getElementById('projNote').value||'').trim(),stat=(document.getElementById('projStat').value||'').trim();
   if(!note&&!stat){toast('כתוב הערה או סטטוס');return}
-  const row=PROJ.find(r=>String(r['מזהה פרויקט'])===String(id));const prev=row?(row['הערות']||''):'';
-  const set={};if(note)set['הערות']=(prev?prev+' | ':'')+todayISO().slice(5)+': '+note;if(stat)set['סטטוס פרויקט']=stat;
-  if(row)Object.assign(row,set);
-  if(hasBackend()&&PROJECTS_GID!=null){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:PROJECTS_GID,key:{'מזהה פרויקט':id},set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  const row=PROJ.find(r=>String(r['מזהה פרויקט'])===String(id));
+  const line=note?todayISO().slice(5)+': '+note:'';
+  const set={};if(stat)set['סטטוס פרויקט']=stat;
+  if(row){Object.assign(row,set);if(line)row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
+  if(hasBackend()&&PROJECTS_GID!=null){try{const res=await gw({action:'appendNote',sheetId:SHEET_MANAGERS,gid:PROJECTS_GID,key:{'מזהה פרויקט':id},text:line,set:set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast(PROJECTS_GID==null?'דמו (ממתין ל-gid)':'דמו: היה נשמר');
   logActId(id,'פרויקט','פעולה/הערה',note||stat||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
@@ -668,16 +728,17 @@ function openPlaceAct(id){
     '<label>סטטוס השמה (אופציונלי)</label><input id="plStat" placeholder="למשל: פעילה / הסתיימה">'+
     '<label>סטטוס תהליך (אופציונלי)</label><input id="plProc" placeholder="למשל: חשבונית נשלחה / שולם">'+
     '<label>עמלה (אופציונלי)</label><input id="plComm" placeholder="סכום עמלה">'+
-    '<div class="row"><button class="ok" onclick="savePlaceAct(\''+esc(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div></div>';
+    '<div class="row"><button class="ok" onclick="savePlaceAct(\''+escJs(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div></div>';
   document.body.appendChild(bg);
 }
 async function savePlaceAct(id){
   const note=(document.getElementById('plNote').value||'').trim(),stat=(document.getElementById('plStat').value||'').trim(),proc=(document.getElementById('plProc').value||'').trim(),comm=(document.getElementById('plComm').value||'').trim();
   if(!note&&!stat&&!proc&&!comm){toast('כתוב הערה או עדכן');return}
-  const row=PLACE.find(r=>String(r['מזהה השמה'])===String(id));const prev=row?(row['הערות']||''):'';
-  const set={};if(note)set['הערות']=(prev?prev+' | ':'')+todayISO().slice(5)+': '+note;if(stat)set['סטטוס השמה']=stat;if(proc)set['סטטוס תהליך']=proc;if(comm)set['עמלה']=comm;
-  if(row)Object.assign(row,set);
-  if(hasBackend()&&PLACEMENTS_GID!=null){try{const res=await gw({action:'update',sheetId:SHEET_MANAGERS,gid:PLACEMENTS_GID,key:{'מזהה השמה':id},set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  const row=PLACE.find(r=>String(r['מזהה השמה'])===String(id));
+  const line=note?todayISO().slice(5)+': '+note:'';
+  const set={};if(stat)set['סטטוס השמה']=stat;if(proc)set['סטטוס תהליך']=proc;if(comm)set['עמלה']=comm;
+  if(row){Object.assign(row,set);if(line)row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
+  if(hasBackend()&&PLACEMENTS_GID!=null){try{const res=await gw({action:'appendNote',sheetId:SHEET_MANAGERS,gid:PLACEMENTS_GID,key:{'מזהה השמה':id},text:line,set:set});toast(res.ok?'נשמר ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast(PLACEMENTS_GID==null?'דמו (ממתין ל-gid)':'דמו: היה נשמר');
   logActId(id,'השמה','פעולה/הערה',note||stat||proc||'');
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
@@ -704,7 +765,7 @@ function renderCandidates(){
     const id=String(r['ID מנהל עבודה']||''),ph=mgrPhone(r),certs=mgrCerts(r).map(c=>'<span class="pill">'+c+'</span>').join(' ');
     const sub=esc((r['אזור עבודה מבוקש']||'—')+' · '+(r['תפקיד עיקרי']||'')+(r['סטטוס מועמד']?' · '+r['סטטוס מועמד']:''))+(mgrNoInt(r)?' · <span style="color:var(--danger)"><b>ללא ראיון</b></span>':'');
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+esc(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+esc(String(r['טלפון']||''))+'\',\''+esc(r['שם מועמד']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(String(r['טלפון']||''))+'\',\''+escJs(r['שם מועמד']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין מועמדים.</p>';
 }
 function openMgrAct(id){
@@ -713,7 +774,7 @@ function openMgrAct(id){
     '<label>מה נעשה / הערה</label><textarea id="mgrNote" placeholder="לדוגמה: תיאמתי ראיון ליום ראשון / העברתי פרטים ללקוח"></textarea>'+
     '<label>סמן שבוצע ראיון?</label><select id="mgrInt"><option value="">ללא שינוי</option><option value="כן">כן, בוצע ראיון</option></select>'+
     '<label>מתי לחזור לבדוק (ימים)</label><input id="mgrDays" type="number" value="0" placeholder="0 = לא רלוונטי">'+
-    '<div class="row"><button class="ok" onclick="saveMgrAct(\''+esc(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div>'+
+    '<div class="row"><button class="ok" onclick="saveMgrAct(\''+escJs(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div>'+
     '<p class="muted">נשמר אצל המועמד בגיליון מנהלי העבודה (מסתנכרן עם מערכת הראיונות ו-AppSheet).</p></div>';
   document.body.appendChild(bg);
 }
@@ -722,12 +783,11 @@ async function saveMgrAct(id){
   if(!note&&!didInt){toast('כתוב הערה או סמן ראיון');return}
   if(!id){toast('אין מזהה מועמד');return}
   const row=MGRS.find(r=>String(r['ID מנהל עבודה'])===String(id));
-  const prev=row?(row['הערות']||''):'';
+  const line=note?todayISO().slice(5)+': '+note:'';
   const set={'תאריך עדכון':todayISO()};
-  if(note)set['הערות']=(prev?prev+' | ':'')+todayISO().slice(5)+': '+note;
   if(didInt)set['בוצע ראיון']=didInt;
-  if(row)Object.assign(row,set);
-  if(hasBackend()){try{const res=await gw({action:'update',table:'',sheetId:SHEET_MANAGERS,key:{'ID מנהל עבודה':id},set});toast(res.ok?'נשמר אצל המועמד ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  if(row){Object.assign(row,set);if(line)row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
+  if(hasBackend()){try{const res=await gw({action:'appendNote',table:'',sheetId:SHEET_MANAGERS,key:{'ID מנהל עבודה':id},text:line,set:set});toast(res.ok?'נשמר אצל המועמד ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הפעולה הייתה נשמרת');
   if(row&&row['טלפון'])logAct(row['טלפון'],'מועמד','פעולה/הערה',note+(didInt?' | בוצע ראיון':''));
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
@@ -785,9 +845,9 @@ function renderWaPending(){
   const rows=WA_ROWS;const dom=waMode()=='m'?'מנהלי עבודה':'עובדים זרים + אחר';
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים · '+dom+'</div>';
   document.getElementById('waList').innerHTML=_waGroup(rows).map(g=>{
-    const ids=esc(g.ids);const src=String(g.source||'');const isGrp=src.indexOf('קבוצה')===0;
+    const ids=escJs(g.ids);const src=String(g.source||'');const isGrp=src.indexOf('קבוצה')===0;
     const muteTarget=isGrp?src.replace('קבוצה: ','').trim():String(g.name||'').trim();
-    const muteBtn=muteTarget?'<button class="ghost" onclick="waMuteUI(\''+esc(muteTarget)+'\')">🔇 '+(isGrp?'השתק קבוצה':'החרג')+'</button>':'';
+    const muteBtn=muteTarget?'<button class="ghost" onclick="waMuteUI(\''+escJs(muteTarget)+'\')">🔇 '+(isGrp?'השתק קבוצה':'החרג')+'</button>':'';
     const acts=(g.cat=='אחר')
       ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+muteBtn
       :'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn;
@@ -798,7 +858,7 @@ function renderWaApproved(){
   const rows=WA_ROWS;const dom=waMode()=='m'?'מנהלי עבודה':'עובדים זרים + אחר';
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> מאושרים (טרם הועברו) · '+dom+'</div>';
   document.getElementById('waList').innerHTML=_waGroup(rows).map(g=>{
-    const ids=esc(g.ids),fore=g.cat=='עובדים זרים';
+    const ids=escJs(g.ids),fore=g.cat=='עובדים זרים';
     return _waGroupCard(g,'<button class="ok" onclick="waPushGroup(\''+ids+'\')">העבר לגוגל שיט → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat));
   }).join('')||'<p class="muted">אין מאושרים בתחום הזה.</p>';
 }
@@ -848,39 +908,51 @@ async function waTestNow(){
       '<div class="muted" style="font-size:11px">(העתק הכל לקלוד)</div>';
   }catch(e){document.getElementById('waSummary').innerHTML='<div style="color:var(--danger)">שגיאת חיבור לגשר</div>'}
 }
-async function waApproveUI(id,cat){
-  if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: אושר (ברשימה שלנו)');return;}
-  try{const a=await gw(cat?{action:'waApprove',id:id,cat:cat}:{action:'waApprove',id:id});toast(a&&a.ok?'אושר — עבר לרשימת "מאושר"':'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
-}
 let _waActing=false;
-async function waPushUI(id){
-  if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: הועבר');return;}
-  if(_waActing){toast('רגע, פעולה קודמת עוד רצה…');return;}_waActing=true;
-  try{const a=await gw({action:'waPush',id:id});toast(a&&a.ok?('הועבר ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+' ✓'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
-}
-async function waRejectUI(id){
-  if(!hasBackend()){WA_ROWS=WA_ROWS.filter(r=>String(r['idMessage'])!=id);renderWa();toast('דמו: נדחה');return;}
-  try{const a=await gw({action:'waReject',id:id});toast(a&&a.ok?'נדחה':'⚠');loadWa();}catch(e){toast('שגיאת חיבור')}
-}
 async function waMuteUI(name){
   if(!hasBackend()){toast('דמו');return;}if(!name)return;
-  try{const a=await gw({action:'waMute',name:name});toast(a&&a.ok?('"'+name+'" הוחרג ✓ — לא יחזור'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
+  if(!confirm('להשתיק את "'+name+'"? הודעות ממנו לא ייכנסו יותר (אפשר לבטל דרך 🔇 מושתקים).'))return;
+  try{const a=await gw({action:'waMute',name:name});toast(a&&a.ok?('"'+name+'" הושתק ✓'):'⚠ '+((a&&a.error)||''));loadWa();}catch(e){toast('שגיאת חיבור')}
 }
+// מסך מושתקים — צפייה + ביטול השתקה (הרשימה הקבועה בקוד ניתנת לשינוי רק דרך קלוד)
+async function waShowMuted(){
+  if(!hasBackend()){toast('דמו');return;}
+  const bg=document.createElement('div');bg.className='modal-bg';
+  bg.innerHTML='<div class="modal"><b>🔇 קבוצות ואנשים מושתקים</b><div id="mutedBody" class="muted" style="margin-top:8px">טוען…</div><div class="row"><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">סגור</button></div></div>';
+  document.body.appendChild(bg);
+  try{const a=await gw({action:'waMutedList'});const b=document.getElementById('mutedBody');if(!b)return;
+    if(a&&a.ok){
+      const mine=(a.rows||[]).map(n=>'<div class="task" style="padding:6px 10px;margin-bottom:4px"><div style="flex:1">'+esc(n)+'</div><button class="ghost" onclick="waUnmuteUI(\''+escJs(n)+'\')">בטל השתקה</button></div>').join('');
+      const fixed=(a.fixed||[]).map(n=>'<span class="pill">'+esc(n)+'</span>').join(' ');
+      b.innerHTML=(mine||'<p class="muted">אין השתקות שהוספת.</p>')+(fixed?'<div class="muted" style="font-size:11px;margin-top:8px">קבועים (לביטול — בקשה לקלוד):<br>'+fixed+'</div>':'');
+    }else b.innerHTML='שגיאה בטעינה';
+  }catch(e){const b=document.getElementById('mutedBody');if(b)b.innerHTML='שגיאת חיבור';}
+}
+async function waUnmuteUI(name){
+  try{const a=await gw({action:'waUnmute',name:name});toast(a&&a.ok?'ההשתקה בוטלה ✓ — ההודעות יחזרו במשיכה הבאה':'⚠ '+((a&&a.error)||''));const m=document.querySelector('.modal-bg');if(m)m.remove();waShowMuted();}catch(e){toast('שגיאת חיבור')}
+}
+// פעולות אצווה — קריאת שרת אחת לכל הקבוצה (במקום אחת לכל הודעה), עם בדיקת תוצאה אמיתית
 async function waApproveGroup(idsCsv,cat){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
-  try{for(const id of ids){await gw(cat?{action:'waApprove',id:id,cat:cat}:{action:'waApprove',id:id});}toast('אושר ('+ids.length+') — עבר ל"מאושר"');loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+  try{const a=await gw({action:'waApproveMany',ids:ids,cat:cat||''});
+    if(a&&a.ok)toast('אושרו '+a.done+(a.missed?' (לא נמצאו: '+a.missed+')':'')+' — עברו ל"מאושר"');else toast('⚠ לא אושר: '+((a&&a.error)||'לא נמצא'));
+    loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waPushGroup(idsCsv){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
-  try{let cat='';for(const id of ids){const a=await gw({action:'waPush',id:id});if(a&&a.category)cat=a.category;}toast('הועבר ל'+(cat=='עובדים זרים'?'לידים':'מועמדים')+' ✓');loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+  try{const a=await gw({action:'waPushMany',ids:ids});
+    if(a&&a.ok)toast('הועברו '+a.done+' ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+(a.existed?' ('+a.existed+' כבר היו קיימים)':'')+' ✓');else toast('⚠ לא הועבר: '+((a&&a.error)||'לא נמצא'));
+    loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waRejectGroup(idsCsv){
-  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length)return;
-  try{for(const id of ids){await gw({action:'waReject',id:id});}toast('נדחה');loadWa();}catch(e){toast('שגיאת חיבור')}
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;
+  if(!confirm('לדחות '+ids.length+' הודעות? הן לא יעברו ללידים/מועמדים.'))return;
+  _waActing=true;
+  try{const a=await gw({action:'waRejectMany',ids:ids});toast(a&&a.ok?'נדחו '+a.done:'⚠ '+((a&&a.error)||'לא נמצא'));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waMoveGroup(idsCsv,cat){
-  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length)return;
-  try{for(const id of ids){await gw({action:'waMove',id:id,cat:cat});}toast('הועבר ל'+(cat=='עובדים זרים'?'זרים':'מנהלים')+' ✓');loadWa();}catch(e){toast('שגיאת חיבור')}
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
+  try{const a=await gw({action:'waMoveMany',ids:ids,cat:cat});toast(a&&a.ok?('הועבר ל'+(cat=='עובדים זרים'?'זרים':'מנהלים')+' ✓'):'⚠ '+((a&&a.error)||'לא נמצא'));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 let _waAuto=false;
 async function waAutoRefresh(){const b=document.getElementById('waAutoBtn');if(!b||!hasBackend())return;try{const a=await gw({action:'waAutoStatus'});if(a&&a.ok){_waAuto=!!a.on;
@@ -906,11 +978,11 @@ function renderClients(){
   const ord=clientSort==='abc'?'לפי א-ב':'המעודכנים אחרונה קודם';
   el.innerHTML='<div class="sumbar"><div><b>'+total+'</b> '+(q?'תוצאות':'לקוחות')+(total>60?' — מוצגות 60 ('+ord+')':' ('+ord+')')+'</div></div>'+rows.map(r=>{
     const ph=String(r['טלפון מנורמל']||r['טלפון']||'').replace(/\D/g,'');
-    const name=esc(r['חברה']||r['שם הלקוח']||'(ללא שם)');const st=esc(r['בעבודה']||'');
-    const key=esc(String(r['טלפון מנורמל']||r['טלפון']||''));
+    const name=esc(r['חברה']||r['שם הלקוח']||'(ללא שם)');const nameJs=escJs(r['חברה']||r['שם הלקוח']||'(ללא שם)');const st=esc(r['בעבודה']||'');
+    const key=escJs(String(r['טלפון מנורמל']||r['טלפון']||''));
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
     const sub=esc((r['אזור עבודה']||'—')+(r['סוג עובדים']?' · '+r['סוג עובדים']:''))+(st?' · <span class="pill">'+st+'</span>':'');
-    return '<div class="task"><div class="b b-ok"></div><div style="flex:1"><b>'+name+'</b> <span class="muted" style="font-size:12px">'+esc(r['טלפון']||'')+'</span><div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ok" onclick="openHistory(\''+key+'\',\''+name+'\')">📜 היסטוריה</button><button class="ghost" onclick="openTreat(\''+ph+'\',\''+name+'\')">טיפול</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-ok"></div><div style="flex:1"><b>'+name+'</b> <span class="muted" style="font-size:12px">'+esc(r['טלפון']||'')+'</span><div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ok" onclick="openHistory(\''+key+'\',\''+nameJs+'\')">📜 היסטוריה</button><button class="ghost" onclick="openTreat(\''+ph+'\',\''+nameJs+'\')">טיפול</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">לא נמצא לקוח תואם.</p>';
 }
 function renderGuideZ(){

@@ -261,7 +261,7 @@ function computeTasks(){
     const dd=daysSince(due);
     if(dd!==null&&dd<0)return; // נדחה לתאריך עתידי — יחזור להופיע באותו תאריך (לא נמחק)
     const score=leadScore(r);
-    const p=(txt,reason,lvl,close)=>tasks.push({c:String(r['חברה']||r['שם הלקוח']||'—'),txt,reason,lvl,owner:o,phone,score,close:close||{'מתי לפנות שוב':'','עדכון אחרון':today}});
+    const p=(txt,reason,lvl,close)=>tasks.push({c:String(r['חברה']||r['שם הלקוח']||'—'),txt,reason,lvl,owner:o,phone,id:String(r['מזהה']||''),score,close:close||{'מתי לפנות שוב':'','עדכון אחרון':today}});
     if(dd!==null&&dd>0)p('פולואפ — תאריך עבר','מתי לפנות שוב: '+due,'hot');else if(dd===0)p('פולואפ להיום',' ','warn');
     if(r['דרישה חדשה']=='כן'||r['דרישה חדשה']===true)p('להציע עוד עובדים','דרישה חדשה','ok',{'דרישה חדשה':'','עדכון אחרון':today});
     if(r['חתם']=='כן'&&!r['תחילת עבודה'])p('לוודא התחלה מול תאגיד','חתום בלי תחילת עבודה','warn',{'מתי לפנות שוב':plusDays(30),'עדכון אחרון':today});
@@ -274,7 +274,7 @@ function _ctlList(){
   const el=document.getElementById('controlList');if(!el)return;
   el.innerHTML=_ctlBan+CTL.map((t,i)=>{
     const wa=t.phone?'<button class="ok" onclick="waSend(\''+String(t.phone).replace(/\D/g,'')+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+t.lvl+'"></div><div style="flex:1"><b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="ctlSnooze('+i+')">טופל (שבוע)</button><button class="ghost" onclick="ctlClose('+i+')">סיים</button><button class="ghost" onclick="ctlTreat('+i+')">טיפול</button><button class="ghost" onclick="openClientCard(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">→ כרטיס מלא</button><button class="ghost" onclick="openHistory(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">📜 היסטוריה</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill">'+t.score+'</span></div></div>';
+    return '<div class="task"><div class="b b-'+(t._replied?'ok':t.lvl)+'"></div><div style="flex:1">'+(t._replied?'<span class="pill" style="background:var(--ok-bg);color:var(--ok)">💬 ענה לך</span> ':'')+'<b>'+esc(t.c)+'</b> — '+esc(t.txt)+'<br><span class="muted">'+esc(t.reason)+'</span><div class="row" style="margin-top:6px"><button class="ghost" onclick="ctlSnooze('+i+')">טופל (שבוע)</button><button class="ghost" onclick="ctlClose('+i+')">סיים</button><button class="ghost" onclick="ctlTreat('+i+')">טיפול</button><button class="ghost" onclick="openClientCard(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">→ כרטיס מלא</button><button class="ghost" onclick="openHistory(\''+escJs(String(t.phone))+'\',\''+escJs(t.c)+'\')">📜 היסטוריה</button>'+callBtn(t.phone)+wa+'</div></div><div style="text-align:center"><span class="pill">'+t.score+'</span></div></div>';
   }).join('')||(_ctlBan?_ctlBan:'<p class="muted">אין פולואפים להיום 👍</p>');
   if(_ctlBan&&!CTL.length)el.innerHTML=_ctlBan;
 }
@@ -299,6 +299,19 @@ function _ctlApplyBanners(a,ag,st){
   const biz=waMode()=='m'?'מנהלים':'זרים';
   const agent=(ag&&ag.ok)?(ag.rows||[]).filter(r=>String(r['עסק']||'')==biz||!r['עסק']):[];
   let ban='';
+  // 💬 "ענו לך": מי שהשיב בוואטסאפ קופץ לראש הרשימה; מי שאין לו משימה — מקבל כרטיס משלו
+  if(st&&st.ok&&st.replied&&st.replied.length&&waMode()=='z'){
+    const rp={};st.replied.forEach(x=>{rp[String(x.phone)]=x});
+    CTL.forEach(t=>{if(rp[String(t.phone)])t._replied=true});
+    CTL.sort((x,y)=>((y._replied?1:0)-(x._replied?1:0)));
+    const inCtl={};CTL.forEach(t=>{if(t._replied)inCtl[String(t.phone)]=1});
+    const extra=st.replied.filter(x=>!inCtl[String(x.phone)]);
+    if(extra.length)ban+='<div class="card" style="border-color:var(--ok);margin-bottom:6px"><b>💬 ענו לך בוואטסאפ — כדאי לחזור אליהם קודם</b>'+extra.map(x=>{
+      const row=LEADS.find(r=>String(r['טלפון מנורמל']||'')===String(x.phone));
+      const nm=row?(row['חברה']||row['שם הלקוח']||x.phone):x.phone;
+      return '<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(nm)+'</b>'+(x.text?' <span class="muted">— "'+esc(x.text)+'"</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="waSend(\''+String(x.phone).replace(/\D/g,'')+'\')">וואטסאפ</button><button class="ghost" onclick="openTreat(\''+escJs(String(x.phone))+'\',\''+escJs(nm)+'\')">טיפול</button><button class="ghost" onclick="openHistory(\''+escJs(String(x.phone))+'\',\''+escJs(nm)+'\')">📜</button>'+callBtn(x.phone)+'</div></div></div>';
+    }).join('')+'</div>';
+  }
   if(agent.length)ban+=_agentBox(agent);
   if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
   const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
@@ -340,7 +353,7 @@ async function ctlClose(i){
   const t=CTL[i];if(!t)return;_ctlDrop(i);
   const set=t.close||{'מתי לפנות שוב':'','עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(t.phone));if(row)Object.assign(row,set);
-  if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));renderControl();return}}catch(e){toast('⚠ שגיאת חיבור');renderControl();return}}
+  if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:leadKey(t.phone),set:set});if(res&&!res.ok){toast('⚠ לא נסגר: '+(res.error||''));renderControl();return}}catch(e){toast('⚠ שגיאת חיבור');renderControl();return}}
   toast('נסגר ✓');logAct(t.phone,'ליד','סיים משימה','');
 }
 function ctlTreat(i){const t=CTL[i];if(!t)return;openTreat(t.phone,t.c);}
@@ -372,10 +385,16 @@ async function openHistory(phone,name){
     else b.innerHTML='<span style="color:var(--danger)">שגיאה בטעינת היסטוריה</span>';
   }catch(e){const b=document.getElementById('histBody');if(b)b.innerHTML='שגיאת חיבור';}
 }
+// מפתח עדכון: מזהה ייחודי כשקיים (חסין לכפילויות טלפון), אחרת טלפון מנורמל
+function leadKey(phone){
+  const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));
+  if(row&&String(row['מזהה']||'').trim())return{'מזהה':String(row['מזהה']).trim()};
+  return{'טלפון מנורמל':String(phone)};
+}
 async function snoozeLead(phone,days){
   const set={'מתי לפנות שוב':plusDays(days),'עדכון אחרון':todayISO()};
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));if(row)Object.assign(row,set);
-  if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return false}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return false}}
+  if(hasBackend()&&phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:leadKey(phone),set:set});if(res&&!res.ok){toast('⚠ לא נשמר: '+(res.error||''));return false}}catch(e){toast('⚠ שגיאת חיבור — לא נשמר');return false}}
   toast(days==1?'נדחה למחר ✓':'טופל — יחזור בעוד '+days+' ימים ✓');
   logAct(phone,'ליד',days==1?'נדחה למחר':'טופל (חוזר בעוד '+days+' ימים)','');
   return true;
@@ -401,7 +420,7 @@ async function saveTreat(phone){
   const row=LEADS.find(r=>String(r['טלפון מנורמל']||r['טלפון']||'')===String(phone));
   if(row){Object.assign(row,set);row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
   // צירוף ההערה בצד השרת תחת נעילה — קריאה אחת במקום שתיים, בלי דריסות במקביל
-  if(hasBackend()){try{const res=await gw({action:'appendNote',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':phone},text:line,set:set});toast(res.ok?'הטיפול נשמר אצל הלקוח ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
+  if(hasBackend()){try{const res=await gw({action:'appendNote',table:cfg().t1||'',sheetId:leadsId(),key:leadKey(phone),text:line,set:set});toast(res.ok?'הטיפול נשמר אצל הלקוח ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הטיפול היה נשמר אצל הלקוח');
   logAct(phone,'ליד','טיפול',line);
   const m=document.querySelector('.modal-bg');if(m)m.remove();
@@ -419,7 +438,7 @@ function msgCard(title,sub,msg,lvl,phone,act){
 }
 const ACT={};
 function actBtn(view,i,label){return '<button class="ghost" onclick="doAct(\''+view+'\','+i+')">'+(label||'סמן טופל')+'</button>'}
-async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:{'טלפון מנורמל':t.phone},set:t.set});if(res&&!res.ok){toast('⚠ לא עודכן: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא עודכן');return}}toast('עודכן ✓');logAct(t.phone,'ליד',({agreements:'עדכון הסכם',corp:'עדכון תאגיד',active:'עדכון פעיל'}[view]||'עדכון'),'');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
+async function doAct(view,i){const t=ACT[view][i];if(!t)return;const row=LEADS.find(r=>(r['טלפון מנורמל']||r['טלפון'])===t.phone);if(row)Object.assign(row,t.set);if(hasBackend()&&t.phone){try{const res=await gw({action:'update',table:cfg().t1||'',sheetId:leadsId(),key:leadKey(t.phone),set:t.set});if(res&&!res.ok){toast('⚠ לא עודכן: '+(res.error||''));return}}catch(e){toast('⚠ שגיאת חיבור — לא עודכן');return}}toast('עודכן ✓');logAct(t.phone,'ליד',({agreements:'עדכון הסכם',corp:'עדכון תאגיד',active:'עדכון פעיל'}[view]||'עדכון'),'');({agreements:renderAgreements,corp:renderCorp,active:renderActive}[view])()}
 function waSend(phone,text){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון לרשומה');return}try{window.open('https://wa.me/'+p+(text?'?text='+encodeURIComponent(text):''),'_blank')}catch(e){copyText(text||'')}}
 function waIntake(){const r=collect();waSend(r['טלפון מנורמל']||r['טלפון'],document.getElementById('readyMsg').value)}
 function tel(phone){const p=String(phone||'').replace(/\D/g,'');if(!p){toast('אין טלפון');return}try{window.location.href='tel:+'+p}catch(e){}}
@@ -534,10 +553,18 @@ async function _mgrResults(){
   const el=document.getElementById('mgResults');if(!el||!hasBackend())return;
   try{const st=await gw({action:'actStats'});if(!st||!st.ok)return;
     const names=p=>{const r=LEADS.find(x=>String(x['טלפון מנורמל']||'')===String(p));return r?(r['חברה']||r['שם הלקוח']||p):p;};
+    const GOAL=6; // יעד לקוחות חדשים לחודש (מהתוכנית העסקית)
+    let funnel='';
+    if(st.funnel&&st.funnel.now){const f=st.funnel;const d=x=>(x>0?'+':'')+x;
+      funnel='<br><b>🎯 משפך:</b> השבוע נכנסו <b>'+st.weekNew+'</b> → מתחממים <b>'+f.now.warm+'</b>'+(f.dWeek?' ('+d(f.dWeek.warm)+' השבוע)':'')+' → בעבודה <b>'+f.now.work+'</b>'+
+        (f.signedThisMonth!==null?' · <b>חתמו החודש: '+f.signedThisMonth+' / יעד '+GOAL+'</b>'+(f.signedThisMonth>=GOAL?' 🏆':(f.signedThisMonth>=GOAL/2?' 💪':' ⏰')):'')+
+        (f.dWeek?'':'<br><span class="muted" style="font-size:12px">נתוני מגמה שבועיים יצטברו תוך שבוע (התצלום היומי התחיל לרוץ)</span>');
+    }
     el.innerHTML='<h3>📈 תוצאות (מהיומן)</h3>'+
       'היום טופלו: <b>'+st.todayHandled+'</b> פעולות · השבוע: <b>'+st.weekHandled+'</b> פעולות · נכנסו מוואטסאפ השבוע: <b>'+st.weekNew+'</b> לידים'+
       (st.avgRespH!==null?'<br>זמן תגובה ממוצע לליד וואטסאפ: <b>'+st.avgRespH+' שעות</b> ('+st.respN+' נמדדו)':'')+
-      ((st.over24&&st.over24.length)?'<br><span style="color:var(--danger)"><b>🚨 '+st.over24.length+' לידים חדשים בלי מענה מעל 24 שעות:</b> '+st.over24.slice(0,5).map(names).map(esc).join(' · ')+'</span>':'');
+      ((st.over24&&st.over24.length)?'<br><span style="color:var(--danger)"><b>🚨 '+st.over24.length+' לידים חדשים בלי מענה מעל 24 שעות:</b> '+st.over24.slice(0,5).map(names).map(esc).join(' · ')+'</span>':'')+
+      funnel;
   }catch(e){}
 }
 function kpi(v,l){return '<div><b>'+v+'</b><span>'+l+'</span></div>'}

@@ -59,7 +59,7 @@ async function gw(payload){
     let res;
     if(embedded()){res=await new Promise((resolve,reject)=>{google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e.message||'server_error'))).api(payload)})}
     else{const c=cfg();if(!c.url)throw new Error('no_gateway');const r=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:c.token,...payload})});res=await r.json();}
-    if(payload&&CACHE_INVALIDATING.indexOf(payload.action)>-1)_cacheAt=0; // רק כתיבה ללידים/שעות מבטלת cache
+    if(payload&&CACHE_INVALIDATING.indexOf(payload.action)>-1){_cacheAt=0;_BOOT=null;} // רק כתיבה ללידים/שעות מבטלת cache
     return res;
   }finally{busy(false)}
 }
@@ -177,16 +177,22 @@ async function sendSummary(np){
 
 let LEADS=[],ROWS=[];
 let LOAD_ERR='';
+let _BOOT=null; // תוצרי ה-bootstrap (וואטסאפ/סוכן/מדדים) — נצרכים ע"י מוקד היום בלי קריאות נוספות
 async function loadAll(cb,force){
   if(hasBackend()){
     if(!force&&_cacheAt&&!DEMO_MODE&&(Date.now()-_cacheAt)<30000){try{if(cb)cb()}catch(e){}return;} // cache: לא לשלוף שוב תוך 30ש' (חוסך קריאת 763 שורות בכל מעבר מסך)
     LOAD_ERR='';let okL=false,okH=false;
-    // שתי השליפות במקביל — חוצה את זמן ההמתנה בפתיחה
-    const [a,b]=await Promise.all([
-      gw({action:'get',table:cfg().t1||'',sheetId:leadsId()}).catch(e=>({_err:(e&&e.message)||String(e)})),
-      gw({action:'get',table:cfg().t2||'',sheetId:hoursId()}).catch(()=>null)
-    ]);
-    if(a&&a.ok){LEADS=a.rows;okL=true}else if(a&&(a.error||a._err)){LOAD_ERR='לידים: '+(a.error||a._err)}
+    // קריאת-פתיחה אחת: לידים+שעות+וואטסאפ+סוכן+מדדים ב-round-trip יחיד
+    let a=null,b=null;
+    const bs=await gw({action:'bootstrap',t1:cfg().t1||'',leadsId:leadsId(),t2:cfg().t2||'',hoursId:hoursId()}).catch(e=>({_err:(e&&e.message)||String(e)}));
+    if(bs&&bs.leads){a=bs.leads;b=bs.hours;_BOOT={wa:bs.wa,agent:bs.agent,stats:bs.stats,at:Date.now()};}
+    else{ // שרת ישן / שגיאה — נפילה חזרה לשתי קריאות במקביל
+      const rs=await Promise.all([
+        gw({action:'get',table:cfg().t1||'',sheetId:leadsId()}).catch(e=>({_err:(e&&e.message)||String(e)})),
+        gw({action:'get',table:cfg().t2||'',sheetId:hoursId()}).catch(()=>null)
+      ]);a=rs[0];b=rs[1];
+    }
+    if(a&&a.ok){LEADS=a.rows;okL=true}else if(a&&(a.error||a._err)){LOAD_ERR='לידים: '+(a.error||a._err)}else if(bs&&bs._err){LOAD_ERR='לידים: '+bs._err}
     if(b&&b.ok){ROWS=b.rows;okH=true}
     checkHeaders();
     if(!okL)LEADS=DEMO_LEADS;
@@ -279,6 +285,27 @@ function _ctlSummary(waN,agentN){
   const done=(_ctlDone!==null&&_ctlDone>=0)?'<div style="color:var(--ok)">✅ טיפלת היום ב-<b>'+_ctlDone+'</b></div>':'';
   if(sum)sum.innerHTML=done+'<div><b>'+CTL.length+'</b> ממתינים</div><div>🔴 '+CTL.filter(t=>t.lvl=='hot').length+' דחופים</div>'+(waN?'<div>📩 '+waN+' וואטסאפ</div>':'')+(stuck.length?'<div>⚠ '+stuck.length+' תקועים</div>':'')+(agentN?'<div>🤖 '+agentN+' סוכן</div>':'');
 }
+// כרטיס הצעת סוכן משותף (מוקד זרים + מוקד מנהלים). טיוטת פולואפ = הודעה מוכנה + "אשר ופתח וואטסאפ"
+function _agentCard(r){
+  const id=escJs(r['מזהה']||r._row);
+  const isFu=String(r['סוג']||'')=='פולואפ';const draft=String(r['פרטים']||'');const phone=String(r['יעד']||'');
+  if(isFu&&draft)return '<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b><div class="msgbox">'+esc(draft)+'</div><div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI(\''+id+'\',\''+escJs(phone)+'\',this.closest(\'.task\').querySelector(\'.msgbox\').textContent)">אשר ופתח וואטסאפ</button><button class="ghost" onclick="copyText(this.closest(\'.task\').querySelector(\'.msgbox\').textContent)">העתק</button><button class="ghost" onclick="agentRejectUI(\''+id+'\')">דחה</button></div></div></div>';
+  return '<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI(\''+id+'\')">אשר</button><button class="ghost" onclick="agentRejectUI(\''+id+'\')">דחה</button></div></div></div>';
+}
+function _agentBox(agent){return '<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b><div class="muted" style="font-size:11px">אישור = ביצוע אוטומטי של הפעולה המוצעת</div>'+agent.map(_agentCard).join('')+'</div>';}
+function _ctlApplyBanners(a,ag,st){
+  if(st&&st.ok)_ctlDone=st.todayHandled;
+  const waN=(a&&a.ok)?(a.rows||[]).filter(waModeMatch).length:0;
+  const biz=waMode()=='m'?'מנהלים':'זרים';
+  const agent=(ag&&ag.ok)?(ag.rows||[]).filter(r=>String(r['עסק']||'')==biz||!r['עסק']):[];
+  let ban='';
+  if(agent.length)ban+=_agentBox(agent);
+  if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
+  const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
+  if(stuck.length)ban+='<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>';
+  if(waMode()=='z')ban+='<div class="row" style="margin:4px 0 8px"><button class="ghost" onclick="agentDraftUI()">🤖 הכן טיוטות פולואפ (AI)</button></div>';
+  _ctlBan=ban;_ctlSummary(waN,agent.length);_ctlList();
+}
 function renderControl(){
   loadAll(function(){
     CTL=computeTasks();
@@ -286,25 +313,25 @@ function renderControl(){
     // ציור מיידי: פולואפים + תקועים (מקומי) — בלי לחכות לשרת
     _ctlBan=stuck.length?'<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>':'';
     _ctlSummary(0,0);_ctlList();
-    // באנרי וואטסאפ+סוכן נטענים במקביל וברקע — מודבקים כשמגיעים
     if(!hasBackend())return;
+    // אם ה-bootstrap טרי (נטען הרגע בקריאת הפתיחה) — הבאנרים מיידיים, אפס קריאות נוספות
+    if(_BOOT&&(Date.now()-_BOOT.at)<30000){_ctlApplyBanners(_BOOT.wa,_BOOT.agent,_BOOT.stats);return;}
     Promise.all([
       gw({action:'waPending'}).catch(()=>null),
       gw({action:'agentPending',business:waMode()=='m'?'מנהלים':'זרים'}).catch(()=>null),
       gw({action:'actStats'}).catch(()=>null)
-    ]).then(function(rs){
-      const a=rs[0],ag=rs[1],st=rs[2];
-      if(st&&st.ok)_ctlDone=st.todayHandled;
-      const waN=(a&&a.ok)?(a.rows||[]).filter(waModeMatch).length:0;
-      const agent=(ag&&ag.ok)?(ag.rows||[]):[];
-      let ban='';
-      if(agent.length)ban+='<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b><div class="muted" style="font-size:11px">אישור = ביצוע אוטומטי של הפעולה המוצעת</div>'+agent.map(r=>'<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI(\''+escJs(r['מזהה']||r._row)+'\')">אשר</button><button class="ghost" onclick="agentRejectUI(\''+escJs(r['מזהה']||r._row)+'\')">דחה</button></div></div></div>').join('')+'</div>';
-      if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
-      const stuck2=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
-      if(stuck2.length)ban+='<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck2.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>';
-      _ctlBan=ban;_ctlSummary(waN,agent.length);_ctlList();
-    });
+    ]).then(function(rs){_ctlApplyBanners(rs[0],rs[1],rs[2]);});
   });
+}
+// הפעלה ידנית של הסוכן המנסח — טיוטות וואטסאפ לפולואפים של היום
+async function agentDraftUI(){
+  if(!hasBackend()){toast('דמו');return;}
+  toast('🤖 מנסח טיוטות…');
+  try{const a=await gw({action:'agentDraft'});
+    if(a&&a.ok)toast(a.suggested?('הוכנו '+a.suggested+' טיוטות — בתיבת הסוכן'):'אין פולואפים חדשים לניסוח');
+    else toast('⚠ '+((a&&(a.error||a.reason=='no_key'&&'חסר מפתח AI'))||'שגיאה'));
+    _BOOT=null;renderControl();
+  }catch(e){toast('שגיאת חיבור')}
 }
 // פעולה אופטימית: הכרטיס יורד מהרשימה מיד, הסנכרון רץ ברקע; בכשל — שליפה מחדש והכרטיס חוזר
 function _ctlDrop(i){CTL.splice(i,1);_ctlSummary(0,0);_ctlList();}
@@ -319,12 +346,13 @@ async function ctlClose(i){
 function ctlTreat(i){const t=CTL[i];if(!t)return;openTreat(t.phone,t.c);}
 function _agentRefresh(){const m=document.getElementById('mgr');if(m&&!m.classList.contains('hide'))mgrReload();else renderControl();}
 let _agentActing=false;
-async function agentApproveUI(id){if(!hasBackend()||_agentActing)return;_agentActing=true;
+async function agentApproveUI(id,phone,draft){if(!hasBackend()||_agentActing)return;_agentActing=true;
   try{const a=await gw({action:'agentApprove',row:id});
     toast(a&&a.ok?('בוצע ✓'+(a.result?' — '+a.result:'')):('⚠ '+((a&&(a.result||a.error))||'שגיאה')));
-    _agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
+    if(a&&a.ok&&phone&&draft)waSend(phone,draft); // טיוטת פולואפ: נפתח וואטסאפ עם ההודעה מוכנה — השליחה בידיים שלך
+    _BOOT=null;_agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
 async function agentRejectUI(id){if(!hasBackend()||_agentActing)return;_agentActing=true;
-  try{await gw({action:'agentReject',row:id});toast('נדחתה');_agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
+  try{await gw({action:'agentReject',row:id});toast('נדחתה');_BOOT=null;_agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
 // "טופל" / "דחה" = לא מוחק! רק קובע מתי הלקוח יחזור לרשימה (תאריך "מתי לפנות שוב" עתידי).
 async function logAct(phone,kind,action,details){
   if(!hasBackend()||!phone)return;
@@ -624,12 +652,13 @@ function renderOpen(){
   _mgrOpenBanners();
 }
 async function _mgrOpenBanners(){
-  if(!hasBackend())return;let waN=0,agent=[];
-  const [a,ag]=await Promise.all([gw({action:'waPending'}).catch(()=>null),gw({action:'agentPending',business:'מנהלים'}).catch(()=>null)]);
-  if(a&&a.ok)waN=(a.rows||[]).filter(r=>String(r['קטגוריה'])=='מנהלי עבודה').length;
-  if(ag&&ag.ok)agent=ag.rows||[];
+  if(!hasBackend())return;let a=null,ag=null;
+  if(_BOOT&&(Date.now()-_BOOT.at)<30000){a=_BOOT.wa;ag=_BOOT.agent;} // ה-bootstrap טרי — אפס קריאות נוספות
+  else{const rs=await Promise.all([gw({action:'waPending'}).catch(()=>null),gw({action:'agentPending',business:'מנהלים'}).catch(()=>null)]);a=rs[0];ag=rs[1];}
+  const waN=(a&&a.ok)?(a.rows||[]).filter(r=>String(r['קטגוריה'])=='מנהלי עבודה').length:0;
+  const agent=(ag&&ag.ok)?(ag.rows||[]).filter(r=>String(r['עסק']||'')=='מנהלים'||!r['עסק']):[];
   const el=document.getElementById('mgrList');if(!el)return;let ban='';
-  if(agent.length)ban+='<div class="card" style="border-color:var(--accent);margin-bottom:6px"><b>🤖 תיבת הסוכן — '+agent.length+' הצעות לאישור</b><div class="muted" style="font-size:11px">אישור = ביצוע אוטומטי של הפעולה המוצעת</div>'+agent.map(r=>'<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><b>'+esc(r['הצעה']||'')+'</b>'+(r['פרטים']?' <span class="muted">— '+esc(r['פרטים'])+'</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="agentApproveUI(\''+escJs(r['מזהה']||r._row)+'\')">אשר</button><button class="ghost" onclick="agentRejectUI(\''+escJs(r['מזהה']||r._row)+'\')">דחה</button></div></div></div>').join('')+'</div>';
+  if(agent.length)ban+=_agentBox(agent);
   if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ (מנהלים) ממתינות</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
   if(ban)el.innerHTML=ban+el.innerHTML;
 }

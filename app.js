@@ -38,7 +38,7 @@ function embedded(){return typeof google!=='undefined'&&google.script&&google.sc
 function hasBackend(){return embedded()||!!cfg().url}
 let _busy=0;
 function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementById('busy');if(b)b.style.display=_busy>0?'inline-block':'none'}
-let DEMO_MODE=false, _cacheAt=0;
+let DEMO_MODE=false, HOURS_DEMO=false, _cacheAt=0;
 const WRITE_ACTIONS=['append','update','upsert','waApprove','waPush','waReject','waResetPending','waNote','waNoteDone','waMute','waMove','waAutoOn','waAutoOff','logActivity','agentApprove','agentReject'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
@@ -174,13 +174,15 @@ async function loadAll(cb,force){
     if(!okL)LEADS=DEMO_LEADS;
     _cacheAt=okL?Date.now():0;
     DEMO_MODE=!okL;applyDemoBanner();
-    if(!okH)ROWS=DEMO_HOURS;
+    HOURS_DEMO=!okH;if(!okH)ROWS=DEMO_HOURS;
     try{if(cb)cb()}catch(e){LOAD_ERR='תצוגה: '+((e&&e.message)||e)}
     const bz=document.getElementById('busy');if(bz){if(LOAD_ERR){bz.style.display='inline-block';bz.textContent='⚠ '+String(LOAD_ERR).slice(0,90)}else{bz.style.display='none'}}
     return;
   }
-  LEADS=DEMO_LEADS;ROWS=DEMO_HOURS;DEMO_MODE=true;applyDemoBanner();if(cb)cb();
+  LEADS=DEMO_LEADS;ROWS=DEMO_HOURS;DEMO_MODE=true;HOURS_DEMO=true;applyDemoBanner();if(cb)cb();
 }
+// באנר אזהרה כשגיליון השעות לא זמין — כדי שמספרי כסף דמו לא ייראו אמיתיים
+function hoursDemoBanner(){return HOURS_DEMO?'<div class="card" style="border-color:var(--danger)"><b style="color:var(--danger)">⛔ גיליון השעות לא זמין — כל מספרי הכסף במסך הזה הם דמו בלבד!</b><div class="muted" style="margin-top:2px">כדי לראות מספרים אמיתיים: לשתף את גיליון השעות עם החשבון הזה, ואז רענן.</div></div>':''}
 function leadScore(r){
   let s=0;
   s+=({'בעבודה':35,'מתחמם':25,'קר':8,'ת. לא מעוניין':2,'ת. לא עובדים איתו':2}[r[F_STATUS]]||10);
@@ -403,7 +405,7 @@ function renderCommiss(){
     if(!r['תשלום שהתקבל בפועל']&&e>0)flags.push({name,txt:'תשלום לא התקבל',lvl:'warn'});else if(a>0&&a<e*0.95)flags.push({name,txt:'פער תשלום: '+(e-a).toFixed(0)+'₪',lvl:'warn'});
   });
   document.getElementById('cmSummary').innerHTML='<div>צפוי: <b>'+exp.toFixed(0)+'₪</b></div><div>בפועל: <b>'+act.toFixed(0)+'₪</b></div><div style="color:var(--danger)">פער: <b>'+(exp-act).toFixed(0)+'₪</b></div>';
-  document.getElementById('cmList').innerHTML=flags.map(f=>'<div class="task"><div class="b b-'+f.lvl+'"></div><div style="flex:1"><b>'+esc(f.name)+'</b> — '+esc(f.txt)+'</div></div>').join('')||'<p class="muted">אין פערים. 👌</p>';
+  document.getElementById('cmList').innerHTML=hoursDemoBanner()+flags.map(f=>'<div class="task"><div class="b b-'+f.lvl+'"></div><div style="flex:1"><b>'+esc(f.name)+'</b> — '+esc(f.txt)+'</div></div>').join('')||'<p class="muted">אין פערים. 👌</p>';
 }
 
 function renderManager(){
@@ -416,16 +418,16 @@ function renderManager(){
   let floor=0;ROWS.forEach(r=>{const e=num(r['הערכת תשלום לקבל']),a=num(r['תשלום שהתקבל בפועל']);if(!r['מספר השעות בפועל'])floor+=e;else if(a<e)floor+=e-a});
   const openColl=ROWS.filter(r=>!r['תשלום שהתקבל בפועל']&&num(r['הערכת תשלום לקבל'])>0).length;
   document.getElementById('mgKpi').innerHTML=
-    kpi(tasks.length,'משימות היום')+kpi(hot,'מתחממים')+kpi(stuckAg,'חתום בלי התחלה')+kpi(active,'בעבודה')+kpi(risk,'דרישה חדשה')+kpi(openColl,'גבייה פתוחה')+kpi(floor.toFixed(0)+'₪','כסף על הרצפה');
+    kpi(tasks.length,'משימות היום')+kpi(hot,'מתחממים')+kpi(stuckAg,'חתום בלי התחלה')+kpi(active,'בעבודה')+kpi(risk,'דרישה חדשה')+kpi(HOURS_DEMO?'דמו':openColl,'גבייה פתוחה')+kpi(HOURS_DEMO?'דמו':(floor.toFixed(0)+'₪'),'כסף על הרצפה');
   const topLeads=LEADS.slice().sort((a,b)=>leadScore(b)-leadScore(a)).slice(0,5);
-  document.getElementById('mgChart').innerHTML='<div class="card"><h3 style="margin-top:0">פייפליין לידים</h3>'+pipelineSvg()+
+  document.getElementById('mgChart').innerHTML=hoursDemoBanner()+'<div class="card"><h3 style="margin-top:0">פייפליין לידים</h3>'+pipelineSvg()+
     '<h3>5 לידים מובילים (ניקוד)</h3>'+topLeads.map(r=>'<div class="row" style="margin:4px 0;justify-content:space-between"><span>'+esc(r['חברה']||r['שם הלקוח']||'—')+'</span><span class="pill">'+leadScore(r)+'</span></div>').join('')+
     '<div class="row"><button class="ghost" onclick="exportLeads()">ייצוא לידים (Excel)</button><button class="ghost" onclick="exportCommiss()">ייצוא עמלות (Excel)</button></div></div>';
   const top=tasks[0];
   const followTomorrow=LEADS.filter(r=>daysSince(r['מתי לפנות שוב'])===-1).length;
   document.getElementById('mgText').innerHTML='<div class="card"><h3>הפעולה הכי חשובה היום</h3>'+(top?('<b>'+top.c+'</b> — '+top.txt+' <span class="muted">('+top.reason+')</span>'):'אין')+
     '<h3>הסיכון הכי גדול</h3>'+(stuckAg>0?stuckAg+' לקוחות חתומים שעדיין לא התחילו — לוודא מול התאגיד.':'אין סיכון בולט.')+
-    '<h3>איפה הכסף על הרצפה</h3>'+floor.toFixed(0)+'₪ — פערי עמלות + שורות בלי דיווח שעות.'+
+    '<h3>איפה הכסף על הרצפה</h3>'+(HOURS_DEMO?'⛔ גיליון השעות לא זמין — אין נתון אמיתי.':floor.toFixed(0)+'₪ — פערי עמלות + שורות בלי דיווח שעות.')+
     '<h3>סוף יום</h3>משימות פתוחות שנותרו: <b>'+tasks.length+'</b> · פולואפים למחר: <b>'+followTomorrow+'</b> · לידים חמים פתוחים: <b>'+hot+'</b>.</div>';
 }
 function kpi(v,l){return '<div><b>'+v+'</b><span>'+l+'</span></div>'}
@@ -881,7 +883,13 @@ async function waMoveGroup(idsCsv,cat){
   try{for(const id of ids){await gw({action:'waMove',id:id,cat:cat});}toast('הועבר ל'+(cat=='עובדים זרים'?'זרים':'מנהלים')+' ✓');loadWa();}catch(e){toast('שגיאת חיבור')}
 }
 let _waAuto=false;
-async function waAutoRefresh(){const b=document.getElementById('waAutoBtn');if(!b||!hasBackend())return;try{const a=await gw({action:'waAutoStatus'});if(a&&a.ok){_waAuto=!!a.on;b.textContent=_waAuto?'⏱️ אוטומטי: פעיל (שעתי)':'⏱️ הפעל משיכה שעתית';b.className=_waAuto?'ok':'ghost';}}catch(e){}}
+async function waAutoRefresh(){const b=document.getElementById('waAutoBtn');if(!b||!hasBackend())return;try{const a=await gw({action:'waAutoStatus'});if(a&&a.ok){_waAuto=!!a.on;
+  const okT=a.lastOk?new Date(a.lastOk).getTime():0,errT=a.lastErr?new Date(String(a.lastErr).split(' | ')[0]).getTime():0;
+  const bad=_waAuto&&((errT&&errT>okT)||(okT&&(Date.now()-okT)>3*3600*1000)); // המשיכה נכשלה לאחרונה, או שלא הצליחה כבר 3+ שעות
+  b.textContent=bad?'⚠ המשיכה נכשלת — בדוק חיבור':(_waAuto?'⏱️ אוטומטי: פעיל (שעתי)':'⏱️ הפעל משיכה שעתית');
+  b.className=_waAuto&&!bad?'ok':'ghost';
+  b.style.background=bad?'var(--danger)':'';b.style.color=bad?'#fff':'';b.style.borderColor=bad?'var(--danger)':'';
+}}catch(e){}}
 async function waAutoToggle(){if(!hasBackend()){toast('דמו — אין גשר');return;}try{const a=await gw({action:_waAuto?'waAutoOff':'waAutoOn'});toast((a&&a.msg)||'עודכן');waAutoRefresh();}catch(e){toast('שגיאת חיבור')}}
 let clientSort='recent';
 function setClientSort(s){clientSort=s;const a=document.getElementById('clSortRecent'),b=document.getElementById('clSortAbc');if(a)a.className=(s=='recent'?'primary':'ghost');if(b)b.className=(s=='abc'?'primary':'ghost');renderClients();}

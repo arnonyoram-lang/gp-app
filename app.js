@@ -44,7 +44,8 @@ function busy(on){_busy=Math.max(0,_busy+(on?1:-1));const b=document.getElementB
 let DEMO_MODE=false, HOURS_DEMO=false, _cacheAt=0;
 const WRITE_ACTIONS=['append','update','upsert','appendNote','waApprove','waApproveMany','waPush','waPushMany','waReject','waRejectMany','waMoveMany','waResetPending','waPull','waNote','waNoteDone','waMute','waUnmute','waMove','waAutoOn','waAutoOff','logActivity','agentApprove','agentReject','agentDraft','agentClassify','agentManagers','agentSetConfig'];
 // רק כתיבות שנוגעות בלידים/שעות מחייבות שליפה מחדש — אישור וואטסאפ/סוכן/יומן לא מפיל את ה-cache של 763 שורות
-const CACHE_INVALIDATING=['append','update','upsert','appendNote','waPush','waPushMany','waResetPending'];
+// רק פעולות שמייצרות שורות חדשות מפילות cache — update/appendNote כבר מעודכנים מקומית (אופטימי), אין צורך לשלוף 763 שורות מחדש
+const CACHE_INVALIDATING=['append','upsert','waPush','waPushMany','waResetPending'];
 function applyDemoBanner(){
   let b=document.getElementById('demoBanner');
   if(DEMO_MODE){
@@ -165,7 +166,7 @@ let LOAD_ERR='';
 let _BOOT=null; // תוצרי ה-bootstrap (וואטסאפ/סוכן/מדדים) — נצרכים ע"י מוקד היום בלי קריאות נוספות
 async function loadAll(cb,force){
   if(hasBackend()){
-    if(!force&&_cacheAt&&!DEMO_MODE&&(Date.now()-_cacheAt)<30000){try{if(cb)cb()}catch(e){}return;} // cache: לא לשלוף שוב תוך 30ש' (חוסך קריאת 763 שורות בכל מעבר מסך)
+    if(!force&&_cacheAt&&!DEMO_MODE&&(Date.now()-_cacheAt)<180000){try{if(cb)cb()}catch(e){}return;} // cache: לא לשלוף שוב תוך 30ש' (חוסך קריאת 763 שורות בכל מעבר מסך)
     LOAD_ERR='';let okL=false,okH=false;
     // קריאת-פתיחה אחת: לידים+שעות+וואטסאפ+סוכן+מדדים ב-round-trip יחיד
     let a=null,b=null;
@@ -206,7 +207,7 @@ async function checkHeaders(){
 function hoursDemoBanner(){return HOURS_DEMO?'<div class="card" style="border-color:var(--danger)"><b style="color:var(--danger)">⛔ גיליון השעות לא זמין — כל מספרי הכסף במסך הזה הם דמו בלבד!</b><div class="muted" style="margin-top:2px">כדי לראות מספרים אמיתיים: לשתף את גיליון השעות עם החשבון הזה, ואז רענן.</div></div>':''}
 function leadScore(r){
   let s=0;
-  s+=({'בעבודה':35,'מתחמם':25,'קר':8,'ת. לא מעוניין':2,'ת. לא עובדים איתו':2}[r[F_STATUS]]||10);
+  s+=({'חם':45,'בעבודה':35,'מתחמם':25,'רוצה בהמשך':15,'קר':8,'סיים':2,'ת. לא מעוניין':2,'ת. לא עובדים איתו':2}[r[F_STATUS]]||10); // 'חם' = הניקוד הגבוה ביותר
   const w=(parseInt(r['כמות עובדים שלד'])||0)+(parseInt(r['כמות עובדים גמרים'])||0);
   s+=Math.min(w,10)*2.5;
   const d=daysSince(r['מתי לפנות שוב']);if(d!==null&&d>=0)s+=15;
@@ -227,7 +228,7 @@ function exportCsv(rows,cols,filename){
 function exportLeads(){exportCsv(LEADS,null,'leads.csv')}
 function exportCommiss(){exportCsv(ROWS,null,'commissions.csv')}
 function pipelineSvg(){
-  const stages=[['קר',r=>r[F_STATUS]=='קר'],['מתחמם',r=>r[F_STATUS]=='מתחמם'],['חתום',r=>r['חתם']=='כן'&&!r['תחילת עבודה']],['בעבודה',r=>r['תחילת עבודה']||r[F_STATUS]=='בעבודה'],['דרישה חדשה',r=>r['דרישה חדשה']=='כן']];
+  const stages=[['קר',r=>r[F_STATUS]=='קר'],['מתחמם',r=>r[F_STATUS]=='מתחמם'],['חם 🔥',r=>r[F_STATUS]=='חם'],['חתום',r=>r['חתם']=='כן'&&!r['תחילת עבודה']],['בעבודה',r=>r['תחילת עבודה']||r[F_STATUS]=='בעבודה'],['דרישה חדשה',r=>r['דרישה חדשה']=='כן']];
   const counts=stages.map(s=>LEADS.filter(s[1]).length);
   const max=Math.max(1,Math.max.apply(null,counts));
   const w=560,bh=26,gap=12,lblW=120,right=w-lblW-6,h=stages.length*(bh+gap)+8;
@@ -268,7 +269,8 @@ function _ctlSummary(waN,agentN){
   const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
   const sum=document.getElementById('controlSummary');
   const done=(_ctlDone!==null&&_ctlDone>=0)?'<div style="color:var(--ok)">✅ טיפלת היום ב-<b>'+_ctlDone+'</b></div>':'';
-  if(sum)sum.innerHTML=done+'<div><b>'+CTL.length+'</b> ממתינים</div><div>🔴 '+CTL.filter(t=>t.lvl=='hot').length+' דחופים</div>'+(waN?'<div>📩 '+waN+' וואטסאפ</div>':'')+(stuck.length?'<div>⚠ '+stuck.length+' תקועים</div>':'')+(agentN?'<div>🤖 '+agentN+' סוכן</div>':'');
+  const fossils=LEADS.filter(r=>{const d=daysSince(r['מתי לפנות שוב']);return d!==null&&d>90}).length; // משימות עתיקות — כדאי להחליט עליהן (סיים/החיה), לא לגרור
+  if(sum)sum.innerHTML=done+'<div><b>'+CTL.length+'</b> ממתינים</div><div>🔴 '+CTL.filter(t=>t.lvl=='hot').length+' דחופים</div>'+(waN?'<div>📩 '+waN+' וואטסאפ</div>':'')+(stuck.length?'<div>⚠ '+stuck.length+' תקועים</div>':'')+(fossils?'<div class="muted">🦴 '+fossils+' באיחור 90+</div>':'')+(agentN?'<div>🤖 '+agentN+' סוכן</div>':'');
 }
 // כרטיס הצעת סוכן משותף (מוקד זרים + מוקד מנהלים). טיוטת פולואפ = הודעה מוכנה + "אשר ופתח וואטסאפ"
 function _agentCard(r){
@@ -301,8 +303,35 @@ function _ctlApplyBanners(a,ag,st){
   if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ ממתינות לאישור</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
   const stuck=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']);
   if(stuck.length)ban+='<div class="task"><div class="b b-warn"></div><div style="flex:1"><b>⚠ '+stuck.length+' חתומים בלי תחילת עבודה</b> <span class="muted">— לבדוק מול התאגיד</span></div></div>';
+  // 🟡 זהב קבור: לידים פעילים (חם/מתחמם/בעבודה) בלי תאריך חזרה — לא יופיעו במוקד לעולם עד שתחיה אותם (ידנית, בלחיצה שלך)
+  const orph=_orphanLeads();
+  if(orph.length&&waMode()=='z')ban+='<div class="task" onclick="ctlShowOrphans()" style="cursor:pointer;border-color:var(--warn)"><div class="b b-warn"></div><div style="flex:1"><b>🟡 '+orph.length+' לידים חמים/מתחממים בלי תאריך חזרה</b> <span class="muted">— קבורים מחוץ למוקד. לחץ להחייאה ←</span></div></div>';
   if(waMode()=='z')ban+='<div class="row" style="margin:4px 0 8px"><button class="ghost" onclick="agentDraftUI()">🤖 הכן טיוטות פולואפ (AI)</button></div>';
   _ctlBan=ban;_ctlSummary(waN,agent.length);_ctlList();
+}
+// לידים "יתומים": סטטוס ששווה כסף אבל בלי 'מתי לפנות שוב' — בלתי-נראים במוקד היום
+function _orphanLeads(){
+  const hotRank={'חם':3,'מתחמם':2,'בעבודה':1};
+  return LEADS.filter(r=>hotRank[String(r[F_STATUS]||'')]&&!String(r['מתי לפנות שוב']||'').trim()&&String(r['טלפון מנורמל']||r['טלפון']||'').trim())
+    .sort((a,b)=>(hotRank[b[F_STATUS]]-hotRank[a[F_STATUS]])||String(b['עדכון אחרון']||'').localeCompare(String(a['עדכון אחרון']||'')));
+}
+// מסך החייאה: כל ליד קבור עם כפתורי פעולה — שום דבר לא קורה בלי לחיצה שלך
+function ctlShowOrphans(){
+  const el=document.getElementById('controlList');if(!el)return;
+  const orph=_orphanLeads();window._ORPH=orph;
+  el.innerHTML='<div class="card" style="border-color:var(--warn)"><div class="row" style="margin:0"><b style="flex:1">🟡 החייאת לידים קבורים ('+orph.length+')</b><button class="ghost" onclick="renderControl()">← חזרה למוקד</button></div><p class="muted" style="margin:4px 0 0">"מחר / עוד שבוע" קובע תאריך חזרה — הליד ייכנס למוקד והמנסח יכין לו הודעה. הכל ידני: רק מה שאתה לוחץ קורה.</p></div>'+
+    orph.map((r,i)=>{
+      const ph=String(r['טלפון מנורמל']||r['טלפון']||'');const nm=r['חברה']||r['שם הלקוח']||'(ללא שם)';const st=String(r[F_STATUS]||'');
+      const upd=r['עדכון אחרון']?(' · עדכון אחרון: '+r['עדכון אחרון']):'';
+      return '<div class="task"><div class="b b-'+(st=='חם'?'hot':'warn')+'"></div><div style="flex:1"><span class="pill" style="'+(st=='חם'?'background:var(--danger-bg);color:var(--danger)':'')+'">'+esc(st)+'</span> <b>'+esc(nm)+'</b><span class="muted" style="font-size:12px">'+esc(upd)+'</span>'+(r['הערות']?'<div class="muted" style="font-size:12px;margin-top:2px">'+esc(String(r['הערות']).slice(-120))+'</div>':'')+
+        '<div class="row" style="margin-top:6px"><button class="ok" onclick="ctlRevive('+i+',1)">החיה — מחר</button><button class="ghost" onclick="ctlRevive('+i+',7)">עוד שבוע</button><button class="ghost" onclick="openTreat(\''+escJs(ph)+'\',\''+escJs(nm)+'\')">טיפול</button><button class="ghost" onclick="openHistory(\''+escJs(ph)+'\',\''+escJs(nm)+'\')">📜</button>'+callBtn(ph)+(ph?'<button class="ok" onclick="waSend(\''+ph.replace(/\D/g,'')+'\')">וואטסאפ</button>':'')+'</div></div></div>';
+    }).join('');
+}
+async function ctlRevive(i,days){
+  const r=(window._ORPH||[])[i];if(!r)return;
+  const ph=String(r['טלפון מנורמל']||r['טלפון']||'');
+  const ok=await snoozeLead(ph,days); // קובע 'מתי לפנות שוב' + מתעד — הליד חוזר לחיים
+  if(ok!==false)ctlShowOrphans(); // רענון הרשימה (הליד שהוחיה יורד ממנה)
 }
 function renderControl(){
   loadAll(function(){
@@ -313,7 +342,7 @@ function renderControl(){
     _ctlSummary(0,0);_ctlList();
     if(!hasBackend())return;
     // אם ה-bootstrap טרי (נטען הרגע בקריאת הפתיחה) — הבאנרים מיידיים, אפס קריאות נוספות
-    if(_BOOT&&(Date.now()-_BOOT.at)<30000){_ctlApplyBanners(_BOOT.wa,_BOOT.agent,_BOOT.stats);return;}
+    if(_BOOT&&(Date.now()-_BOOT.at)<180000){_ctlApplyBanners(_BOOT.wa,_BOOT.agent,_BOOT.stats);return;}
     Promise.all([
       gw({action:'waPending'}).catch(()=>null),
       gw({action:'agentPending',business:waMode()=='m'?'מנהלים':'זרים'}).catch(()=>null),
@@ -344,13 +373,21 @@ async function ctlClose(i){
 function ctlTreat(i){const t=CTL[i];if(!t)return;openTreat(t.phone,t.c);}
 function _agentRefresh(){const m=document.getElementById('mgr');if(m&&!m.classList.contains('hide'))mgrReload();else renderControl();}
 let _agentActing=false;
+// הסרת הצעה מה-cache המקומי + רענון תצוגה בלי קריאת שרת (הכרטיס נעלם מיד)
+function _agentDrop(id){
+  if(_BOOT&&_BOOT.agent&&_BOOT.agent.rows){_BOOT.agent.rows=_BOOT.agent.rows.filter(r=>String(r['מזהה']||r._row)!==String(id));_BOOT.at=Date.now();}
+  const m=document.getElementById('mgr');
+  if(m&&!m.classList.contains('hide'))renderMgr();
+  else if(_BOOT)_ctlApplyBanners(_BOOT.wa,_BOOT.agent,_BOOT.stats);
+  else renderControl();
+}
 async function agentApproveUI(id,phone,draft){if(!hasBackend()||_agentActing)return;_agentActing=true;
   try{const a=await gw({action:'agentApprove',row:id});
     toast(a&&a.ok?('בוצע ✓'+(a.result?' — '+a.result:'')):('⚠ '+((a&&(a.result||a.error))||'שגיאה')));
     if(a&&a.ok&&phone&&draft)waSend(phone,draft); // טיוטת פולואפ: נפתח וואטסאפ עם ההודעה מוכנה — השליחה בידיים שלך
-    _BOOT=null;_agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
+    _agentDrop(id);}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
 async function agentRejectUI(id){if(!hasBackend()||_agentActing)return;_agentActing=true;
-  try{await gw({action:'agentReject',row:id});toast('נדחתה');_BOOT=null;_agentRefresh();}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
+  try{await gw({action:'agentReject',row:id});toast('נדחתה');_agentDrop(id);}catch(e){toast('שגיאת חיבור')}finally{_agentActing=false}}
 // "טופל" / "דחה" = לא מוחק! רק קובע מתי הלקוח יחזור לרשימה (תאריך "מתי לפנות שוב" עתידי).
 async function logAct(phone,kind,action,details){
   if(!hasBackend()||!phone)return;
@@ -471,6 +508,7 @@ function renderCommiss(){
 function renderManager(){
   const tasks=computeTasks();const today=todayISO();
   const hot=LEADS.filter(r=>r[F_STATUS]=='מתחמם').length;
+  const fire=LEADS.filter(r=>r[F_STATUS]=='חם').length;
   const stuckAg=LEADS.filter(r=>r['חתם']=='כן'&&!r['תחילת עבודה']).length;
   const waitCorp=stuckAg;
   const active=LEADS.filter(r=>r['תחילת עבודה']||r[F_STATUS]=='בעבודה').length;
@@ -478,7 +516,7 @@ function renderManager(){
   let floor=0;ROWS.forEach(r=>{const e=num(r['הערכת תשלום לקבל']),a=num(r['תשלום שהתקבל בפועל']);if(!r['מספר השעות בפועל'])floor+=e;else if(a<e)floor+=e-a});
   const openColl=ROWS.filter(r=>!r['תשלום שהתקבל בפועל']&&num(r['הערכת תשלום לקבל'])>0).length;
   document.getElementById('mgKpi').innerHTML=
-    kpi(tasks.length,'משימות היום')+kpi(hot,'מתחממים')+kpi(stuckAg,'חתום בלי התחלה')+kpi(active,'בעבודה')+kpi(risk,'דרישה חדשה')+kpi(HOURS_DEMO?'דמו':openColl,'גבייה פתוחה')+kpi(HOURS_DEMO?'דמו':(floor.toFixed(0)+'₪'),'כסף על הרצפה');
+    kpi(tasks.length,'משימות היום')+(fire?kpi('🔥 '+fire,'חמים'):'')+kpi(hot,'מתחממים')+kpi(stuckAg,'חתום בלי התחלה')+kpi(active,'בעבודה')+kpi(risk,'דרישה חדשה')+kpi(HOURS_DEMO?'דמו':openColl,'גבייה פתוחה')+kpi(HOURS_DEMO?'דמו':(floor.toFixed(0)+'₪'),'כסף על הרצפה');
   const topLeads=LEADS.slice().sort((a,b)=>leadScore(b)-leadScore(a)).slice(0,5);
   document.getElementById('mgChart').innerHTML=hoursDemoBanner()+'<div class="card"><h3 style="margin-top:0">פייפליין לידים</h3>'+pipelineSvg()+
     '<h3>5 לידים מובילים (ניקוד)</h3>'+topLeads.map(r=>'<div class="row" style="margin:4px 0;justify-content:space-between"><span>'+esc(r['חברה']||r['שם הלקוח']||'—')+'</span><span class="pill">'+leadScore(r)+'</span></div>').join('')+
@@ -495,12 +533,12 @@ function renderManager(){
 // 📈 תוצאות — לא רק מלאי: מה נעשה בפועל (מיומן התיעוד) + מהירות תגובה ללידים חדשים
 async function _mgrResults(){
   const el=document.getElementById('mgResults');if(!el||!hasBackend())return;
-  try{const st=await gw({action:'actStats'});if(!st||!st.ok)return;
+  try{const st=(_BOOT&&(Date.now()-_BOOT.at)<180000&&_BOOT.stats&&_BOOT.stats.ok)?_BOOT.stats:await gw({action:'actStats'});if(!st||!st.ok)return;
     const names=p=>{const r=LEADS.find(x=>String(x['טלפון מנורמל']||'')===String(p));return r?(r['חברה']||r['שם הלקוח']||p):p;};
     const GOAL=6; // יעד לקוחות חדשים לחודש (מהתוכנית העסקית)
     let funnel='';
     if(st.funnel&&st.funnel.now){const f=st.funnel;const d=x=>(x>0?'+':'')+x;
-      funnel='<br><b>🎯 משפך:</b> השבוע נכנסו <b>'+st.weekNew+'</b> → מתחממים <b>'+f.now.warm+'</b>'+(f.dWeek?' ('+d(f.dWeek.warm)+' השבוע)':'')+' → בעבודה <b>'+f.now.work+'</b>'+
+      funnel='<br><b>🎯 משפך:</b> השבוע נכנסו <b>'+st.weekNew+'</b> → מתחממים <b>'+f.now.warm+'</b>'+(f.dWeek?' ('+d(f.dWeek.warm)+' השבוע)':'')+(f.now.hot?' → 🔥 חמים <b>'+f.now.hot+'</b>':'')+' → בעבודה <b>'+f.now.work+'</b>'+
         (f.signedThisMonth!==null?' · <b>חתמו החודש: '+f.signedThisMonth+' / יעד '+GOAL+'</b>'+(f.signedThisMonth>=GOAL?' 🏆':(f.signedThisMonth>=GOAL/2?' 💪':' ⏰')):'')+
         (f.dWeek?'':'<br><span class="muted" style="font-size:12px">נתוני מגמה שבועיים יצטברו תוך שבוע (התצלום היומי התחיל לרוץ)</span>');
     }
@@ -522,9 +560,11 @@ const AUDIENCES=[
   {k:'דרישה חדשה',f:r=>r['דרישה חדשה']=='כן'},
   {k:'לא מעוניינים (לעבר)',f:r=>String(r[F_STATUS]).indexOf('לא מעוניין')>-1},
 ];
+// החרגה משיווק: מי שביקש לא לפנות / לא עובדים איתו — לפי עמודת הסטטוס האמיתית ('בעבודה')
+function mkExcluded(r){const s=String(r[F_STATUS]||'');return s.indexOf('לא מעוניין')>-1||s.indexOf('לא עובדים')>-1||s.indexOf('לא לפנות')>-1}
 function initMarketing(){const s=document.getElementById('mkAud');if(s.options.length)return;AUDIENCES.forEach(a=>s.add(new Option(a.k,a.k)));renderMarketing()}
 function renderMarketing(){
-  const k=document.getElementById('mkAud').value;const a=AUDIENCES.find(x=>x.k==k);const n=LEADS.filter(r=>!(r['סטטוס']=='לא לפנות')&&a.f(r)).length;
+  const k=document.getElementById('mkAud').value;const a=AUDIENCES.find(x=>x.k==k);const n=LEADS.filter(r=>(k.indexOf('לא מעוניין')>-1||!mkExcluded(r))&&a.f(r)).length;
   const base='שלום, יש אפשרות לקליטת עובדים זרים לבנייה בשלד וגמרים, בהתאם לזמינות ולתנאי התאגיד. אם צריך טפסנים, ברזלנים, טייחים או רצפים — כתוב לי כמה עובדים, באיזה אזור ומתי, ואבדוק התאמה.';
   const wa='היי, '+(k.includes('פעיל')?'בודק איתך — צריך עוד עובדים בתקופה הקרובה?':'מזכיר שיש זמינות עובדי '+(k.includes('גמר')?'גמרים (טיח/ריצוף)':k.includes('שלד')?'שלד (טפסנות/ברזלנות)':'שלד וגמרים')+'. רוצה שאבדוק התאמה לפרויקט שלך?');
   const out=[['WhatsApp',wa],['SMS','עובדים זרים לבנייה — זמינות עכשיו. כמה, איזה מקצוע, איזה אזור? השב ואחזור אליך.'],['מייל',base],['סטטוס WhatsApp','✅ עובדי שלד וגמרים זמינים. שלחו צורך — נבדוק התאמה.'],['פוסט פייסבוק',base+' (בכפוף לתנאי התאגיד ותקופת קליטה).'],['רעיון סרטון','30 שניות: "איך נראית תקופת קליטה של עובד זר טוב — ולמה סבלנות משתלמת."']];
@@ -534,7 +574,7 @@ function renderMarketing(){
 
 async function logCampaign(){
   const k=document.getElementById('mkAud').value;const a=AUDIENCES.find(x=>x.k==k);
-  const n=LEADS.filter(r=>!(r['סטטוס']=='לא לפנות')&&a.f(r)).length;
+  const n=LEADS.filter(r=>(k.indexOf('לא מעוניין')>-1||!mkExcluded(r))&&a.f(r)).length;
   const rec={'תאריך':todayISO(),'קהל':k,'כמות':n,'אחראי':cfg().owner||'אביבית'};
   if(hasBackend()){try{const res=await gw({action:'append',table:'קמפיינים',record:rec});toast(res.ok?'תועד ✓':'שגיאה: '+(res.error||'')+' (צריך טאב "קמפיינים")')}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: היה נרשם קמפיין ל"'+k+'" ('+n+' רשומות)');
@@ -611,11 +651,17 @@ async function loadOpen(){
 function renderOpen(){
   const q=((document.getElementById('mgrSearch')||{}).value||'').trim();
   const items=[];
-  MGRS.forEach(r=>{if(r['שם מועמד']&&mgrNoInt(r))items.push({t:'מועמד',name:r['שם מועמד'],sub:(r['אזור עבודה מבוקש']||'—')+' · ללא ראיון',ph:mgrPhone(r),act:"openMgrAct('"+escJs(String(r['ID מנהל עבודה']||''))+"')"});});
-  CON.forEach(r=>{const open=String(r['סגר']||'').indexOf('כן')<0;if(open&&(r['שם חברה']||r['איש קשר']))items.push({t:'קבלן',name:r['שם חברה']||r['איש קשר'],sub:(r['עיר']||r['אזור']||'—')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''),ph:mgrPhone({'טלפון':r['טלפון']}),act:"openConAct('"+escJs(String(r['מזהה קבלן']||''))+"')"});});
+  // רק מועמדים זמינים בלי ראיון — 'לא זמין' לא שווה שיחה עכשיו; טריים (עודכנו לאחרונה) קודם
+  MGRS.forEach(r=>{if(!r['שם מועמד']||!mgrNoInt(r))return;const st=String(r['סטטוס מועמד']||'').trim();if(st&&st!=='זמין')return;
+    items.push({t:'מועמד',name:r['שם מועמד'],sub:(r['אזור עבודה מבוקש']||'—')+' · ללא ראיון'+(r['תאריך עדכון']?' · '+r['תאריך עדכון']:''),fresh:String(r['תאריך עדכון']||''),ph:mgrPhone(r),act:"openMgrAct('"+escJs(String(r['ID מנהל עבודה']||''))+"')"});});
+  CON.forEach(r=>{const open=String(r['סגר']||'').indexOf('כן')<0;if(open&&(r['שם חברה']||r['איש קשר']))items.push({t:'קבלן',name:r['שם חברה']||r['איש קשר'],sub:(r['עיר']||r['אזור']||'—')+(r['סטטוס קבלן']?' · '+r['סטטוס קבלן']:''),fresh:String(r['תאריך עדכון']||r['עדכון אחרון']||''),ph:mgrPhone({'טלפון':r['טלפון']}),act:"openConAct('"+escJs(String(r['מזהה קבלן']||''))+"')"});});
+  items.sort((a,b)=>(a.t=='קבלן')-(b.t=='קבלן')||b.fresh.localeCompare(a.fresh)); // מועמדים קודם, ובתוך כל סוג — הטרי ביותר ראשון
   let rows=items;
   if(q)rows=rows.filter(x=>(x.name+' '+x.sub).indexOf(q)>-1);
-  document.getElementById('mgrSummary').innerHTML='<div><b>'+rows.length+'</b> לטיפול</div><div>👤 '+rows.filter(x=>x.t=='מועמד').length+' מועמדים</div><div>🏗️ '+rows.filter(x=>x.t=='קבלן').length+' קבלנים</div>';
+  const total=rows.length,CAP=20;
+  const shown=q?rows:rows.slice(0,CAP); // בלי חיפוש — טופ-20 בלבד: רשימת עבודה, לא קיר
+  document.getElementById('mgrSummary').innerHTML='<div><b>'+total+'</b> לטיפול'+(total>shown.length?' (מציג '+shown.length+' — חפש לצמצום)':'')+'</div><div>👤 '+rows.filter(x=>x.t=='מועמד').length+' מועמדים זמינים</div><div>🏗️ '+rows.filter(x=>x.t=='קבלן').length+' קבלנים</div>';
+  rows=shown;
   document.getElementById('mgrList').innerHTML=rows.map(x=>{
     const wa=x.ph?'<button class="ok" onclick="waSend(\''+x.ph+'\')">וואטסאפ</button>':'';
     const view=x.t=='קבלן'?'con':'cand';const jump='openMgrCard(\''+view+'\',\''+escJs(x.name)+'\')';
@@ -625,12 +671,18 @@ function renderOpen(){
   _mgrOpenBanners();
 }
 async function _mgrOpenBanners(){
-  if(!hasBackend())return;let a=null,ag=null;
-  if(_BOOT&&(Date.now()-_BOOT.at)<30000){a=_BOOT.wa;ag=_BOOT.agent;} // ה-bootstrap טרי — אפס קריאות נוספות
-  else{const rs=await Promise.all([gw({action:'waPending'}).catch(()=>null),gw({action:'agentPending',business:'מנהלים'}).catch(()=>null)]);a=rs[0];ag=rs[1];}
+  if(!hasBackend())return;let a=null,ag=null,st=null;
+  if(_BOOT&&(Date.now()-_BOOT.at)<180000){a=_BOOT.wa;ag=_BOOT.agent;st=_BOOT.stats;} // ה-bootstrap טרי — אפס קריאות נוספות
+  else{const rs=await Promise.all([gw({action:'waPending'}).catch(()=>null),gw({action:'agentPending',business:'מנהלים'}).catch(()=>null),gw({action:'actStats'}).catch(()=>null)]);a=rs[0];ag=rs[1];st=rs[2];}
   const waN=(a&&a.ok)?(a.rows||[]).filter(r=>String(r['קטגוריה'])=='מנהלי עבודה').length:0;
   const agent=(ag&&ag.ok)?(ag.rows||[]).filter(r=>String(r['עסק']||'')=='מנהלים'||!r['עסק']):[];
   const el=document.getElementById('mgrList');if(!el)return;let ban='';
+  // 💬 "ענו לך" בצד המנהלים: תשובות של מועמדים/קבלנים — קודם לכל
+  if(st&&st.ok&&st.replied&&st.replied.length){
+    const who={};MGRS.forEach(r=>{const p=mgrPhone(r);if(p)who[p]={n:r['שם מועמד'],t:'מועמד'}});CON.forEach(r=>{const p=mgrPhone({'טלפון':r['טלפון']});if(p)who[p]={n:r['שם חברה']||r['איש קשר'],t:'קבלן'}});
+    const mine=st.replied.filter(x=>who[String(x.phone)]);
+    if(mine.length)ban+='<div class="card" style="border-color:var(--ok);margin-bottom:6px"><b>💬 ענו לך בוואטסאפ</b>'+mine.map(x=>{const w=who[String(x.phone)];return '<div class="task" style="padding:6px 10px;margin-top:6px"><div style="flex:1"><span class="pill">'+esc(w.t)+'</span> <b>'+esc(w.n||x.phone)+'</b>'+(x.text?' <span class="muted">— "'+esc(x.text)+'"</span>':'')+'<div class="row" style="margin-top:4px"><button class="ok" onclick="waSend(\''+String(x.phone).replace(/\D/g,'')+'\')">וואטסאפ</button>'+callBtn(x.phone)+'</div></div></div>'}).join('')+'</div>';
+  }
   if(agent.length)ban+=_agentBox(agent);
   if(waN)ban+='<div class="task" onclick="show(\'wa\')" style="cursor:pointer"><div class="b b-hot"></div><div style="flex:1"><b>📩 '+waN+' פניות וואטסאפ (מנהלים) ממתינות</b> <span class="muted">— לחץ לפתוח ←</span></div></div>';
   if(ban)el.innerHTML=ban+el.innerHTML;
@@ -724,10 +776,11 @@ function renderPlacements(){
   const open=r=>!r['סיום עבודה'];
   rows.sort((a,b)=>(open(b)-open(a)));
   const comm=rows.reduce((s,r)=>s+(parseFloat(String(r['עמלה']||'').replace(/[^\d.]/g,''))||0),0);
-  document.getElementById('mgrSummary').innerHTML='<div><b>'+rows.length+'</b> השמות</div><div>🟢 '+rows.filter(open).length+' פעילות</div><div>💰 '+comm.toLocaleString()+' ₪ עמלות</div>';
+  const noComm=rows.filter(r=>open(r)&&!String(r['עמלה']||'').trim()).length; // השמה פעילה בלי סכום עמלה = כסף שלא ייגבה
+  document.getElementById('mgrSummary').innerHTML='<div><b>'+rows.length+'</b> השמות</div><div>🟢 '+rows.filter(open).length+' פעילות</div><div>💰 '+comm.toLocaleString()+' ₪ עמלות</div>'+(noComm?'<div style="color:var(--danger)">⚠ '+noComm+' פעילות בלי עמלה!</div>':'');
   document.getElementById('mgrList').innerHTML=rows.map(r=>{
     const id=String(r['מזהה השמה']||''),pr=lookupProj(r['מזהה פרויקט']),mg=lookupCand(r['מזהה מנהל עבודה']);
-    const cm=r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':'';
+    const cm=r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':(open(r)?'<span class="pill" style="background:var(--danger-bg);color:var(--danger)">⚠ חסרה עמלה</span>':'');
     const sub=esc((r['תחילת עבודה']||'')+(r['סיום עבודה']?' → '+r['סיום עבודה']:' (פעילה)')+(r['סטטוס השמה']?' · '+r['סטטוס השמה']:'')+(r['סטטוס תהליך']?' · '+r['סטטוס תהליך']:''));
     return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\'השמה '+escJs(id)+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין השמות.</p>';
@@ -1010,28 +1063,36 @@ async function runAgent(action,label){if(!hasBackend()){toast('דמו — אין
   if(a&&a.ok)toast(label+': '+((a.suggested!=null)?(a.suggested+' הצעות חדשות בתיבת הסוכן'):'הורץ ✓'));
   else toast('⚠ '+((a&&(a.reason=='no_key'?'חסר מפתח AI — הדבק אותו למעלה':a.error))||'שגיאה'));
 }catch(e){toast('שגיאת חיבור')}}
-// פעולות אצווה — קריאת שרת אחת לכל הקבוצה (במקום אחת לכל הודעה), עם בדיקת תוצאה אמיתית
+// פעולות אצווה — קריאת שרת אחת לכל הקבוצה, והרשימה מתעדכנת מקומית מיד (בלי לשלוף הכל מחדש; שליפה רק בכשל)
+function _waDropLocal(ids){const set={};ids.forEach(x=>set[String(x)]=1);WA_ROWS=WA_ROWS.filter(r=>!set[String(r['idMessage'])]);renderWa();}
 async function waApproveGroup(idsCsv,cat){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
   try{const a=await gw({action:'waApproveMany',ids:ids,cat:cat||''});
-    if(a&&a.ok)toast('אושרו '+a.done+(a.missed?' (לא נמצאו: '+a.missed+')':'')+' — עברו ל"מאושר"');else toast('⚠ לא אושר: '+((a&&a.error)||'לא נמצא'));
-    loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+    if(a&&a.ok&&!a.missed){toast('אושרו '+a.done+' — עברו ל"מאושר"');_waDropLocal(ids);}
+    else{toast(a&&a.ok?('אושרו '+a.done+' (לא נמצאו: '+a.missed+')'):('⚠ לא אושר: '+((a&&a.error)||'לא נמצא')));loadWa();}
+  }catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waPushGroup(idsCsv){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
   try{const a=await gw({action:'waPushMany',ids:ids});
-    if(a&&a.ok)toast('הועברו '+a.done+' ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+(a.existed?' ('+a.existed+' כבר היו קיימים)':'')+' ✓');else toast('⚠ לא הועבר: '+((a&&a.error)||'לא נמצא'));
-    loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+    if(a&&a.ok&&!a.missed){toast('הועברו '+a.done+' ל'+(a.category=='עובדים זרים'?'לידים':'מועמדים')+(a.existed?' ('+a.existed+' כבר היו קיימים)':'')+' ✓');_waDropLocal(ids);}
+    else{toast(a&&a.ok?('הועברו '+a.done+' (לא נמצאו: '+a.missed+')'):('⚠ לא הועבר: '+((a&&a.error)||'לא נמצא')));loadWa();}
+  }catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waRejectGroup(idsCsv){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;
   if(!confirm('לדחות '+ids.length+' הודעות? הן לא יעברו ללידים/מועמדים.'))return;
   _waActing=true;
-  try{const a=await gw({action:'waRejectMany',ids:ids});toast(a&&a.ok?'נדחו '+a.done:'⚠ '+((a&&a.error)||'לא נמצא'));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+  try{const a=await gw({action:'waRejectMany',ids:ids});
+    if(a&&a.ok&&!a.missed){toast('נדחו '+a.done);_waDropLocal(ids);}else{toast(a&&a.ok?('נדחו '+a.done):('⚠ '+((a&&a.error)||'לא נמצא')));loadWa();}
+  }catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 async function waMoveGroup(idsCsv,cat){
   if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;_waActing=true;
-  try{const a=await gw({action:'waMoveMany',ids:ids,cat:cat});toast(a&&a.ok?('הועבר ל'+(cat=='עובדים זרים'?'זרים':'מנהלים')+' ✓'):'⚠ '+((a&&a.error)||'לא נמצא'));loadWa();}catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+  try{const a=await gw({action:'waMoveMany',ids:ids,cat:cat});
+    if(a&&a.ok){toast('הועבר ל'+(cat=='עובדים זרים'?'זרים':'מנהלים')+' ✓');_waDropLocal(ids);} // עבר לתחום השני — יורד מהתצוגה הנוכחית
+    else{toast('⚠ '+((a&&a.error)||'לא נמצא'));loadWa();}
+  }catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
 }
 let _waAuto=false;
 async function waAutoRefresh(){const b=document.getElementById('waAutoBtn');if(!b||!hasBackend())return;try{const a=await gw({action:'waAutoStatus'});if(a&&a.ok){_waAuto=!!a.on;

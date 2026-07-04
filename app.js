@@ -930,7 +930,8 @@ function _waGroupCard(g,actionsHtml){
   return '<div class="task"><div class="b b-'+(fore?'hot':(g.cat=='אחר'?'mut':'ok'))+'"></div><div style="flex:1"><span class="pill">'+esc(g.cat)+'</span> '+who+cnt+srcHtml+msgsHtml+'<div class="row" style="margin-top:6px">'+actionsHtml+callBtn(ph)+wa+'</div></div></div>';
 }
 function _waOther(){return waMode()=='m'?{cat:'עובדים זרים',label:'↪ העבר לזרים'}:{cat:'מנהלי עבודה',label:'↪ העבר למנהלים'};}
-function _waMoveBtn(ids,cat){if(cat=='אחר')return '';const o=_waOther();return '<button class="ghost" onclick="waMoveGroup(\''+ids+'\',\''+o.cat+'\')">'+o.label+'</button>';}
+// כפתור העברה לתחום השני — על כל כרטיס, כולל "אחר" (ההודעה עוברת לתצוגת התחום השני ומאושרת שם)
+function _waMoveBtn(ids,cat){const o=_waOther();return '<button class="ghost" onclick="waMoveGroup(\''+ids+'\',\''+o.cat+'\')">'+o.label+'</button>';}
 function renderWaPending(){
   const rows=WA_ROWS;const dom=waMode()=='m'?'מנהלי עבודה':'עובדים זרים + אחר';
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים · '+dom+'</div>';
@@ -943,7 +944,7 @@ function renderWaPending(){
     const muteBtn=(isGrp&&grpName?'<button class="ghost" onclick="waMuteUI(\''+escJs(grpName)+'\',\'group\')">🔇 השתק קבוצה</button>':'')+
       (person?'<button class="ghost" onclick="waMuteUI(\''+escJs(person)+'\',\'person\',\''+escJs(personLbl)+'\')">🚫 החרג את '+esc(personLbl)+'</button>':'');
     const acts=(g.cat=='אחר')
-      ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+muteBtn
+      ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn
       :'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn;
     return _waGroupCard(g,acts);
   }).join('')||'<p class="muted">אין הודעות ממתינות בתחום הזה.</p>';

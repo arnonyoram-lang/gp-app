@@ -839,6 +839,19 @@ const DEMO_MGRS=[
 function mgrPhone(r){let d=String(r['טלפון']||'').replace(/\D/g,'');if(d.length===9&&d.charAt(0)==='5')d='0'+d;if(d.charAt(0)==='0')d='972'+d.slice(1);return d}
 function mgrCerts(r){const c=[];if(r['מנהל עבודה מוסמך']=='כן')c.push('מוסמך');if(r['הנדסאי בניין']=='כן')c.push('הנדסאי');if(r['ממונה בטיחות']=='כן')c.push('בטיחות');if(r['עבודה בגובה']=='כן')c.push('גובה');return c}
 function mgrNoInt(r){return String(r['בוצע ראיון']||'').indexOf('כן')<0}
+// תצוגת תוצרי מערכת הראיונות (קריאה בלבד — הראיון והציון שלה, לא שלנו). כדי שתדחוף השמה עם הוורדיקט ביד.
+function mgrLink(u,label){u=String(u||'').trim();return /^https?:/i.test(u)?'<a href="'+esc(u)+'" target="_blank" class="pill" style="color:var(--accent)">'+label+'</a> ':''}
+function mgrInterview(r){
+  if(mgrNoInt(r))return '';
+  const rec=mgrLink(r['קישור להקלטה'],'🎧 הקלטה')+mgrLink(r['קישור לדרייב'],'📁 דרייב');
+  const line=[]; if(r['ציון התאמה מקצועי'])line.push('התאמה מקצועית: <b>'+esc(r['ציון התאמה מקצועי'])+'</b>'); if(r['שכר מבוקש'])line.push('שכר מבוקש: '+esc(r['שכר מבוקש']));
+  return '<details style="margin-top:4px"><summary style="cursor:pointer;font-size:12px;color:var(--accent)">▸ פרטי ראיון (ממערכת הראיונות)</summary><div style="font-size:12px;line-height:1.6;margin-top:4px">'+
+    (line.length?line.join(' · ')+'<br>':'')+
+    (r['יתרונות מרכזיים']?'<b>יתרונות:</b> '+esc(r['יתרונות מרכזיים'])+'<br>':'')+
+    (r['פערים / חסרונות']?'<b>פערים:</b> '+esc(r['פערים / חסרונות'])+'<br>':'')+
+    (r['סיכום ראיון']?'<b>סיכום:</b> '+esc(String(r['סיכום ראיון']).slice(0,400))+'<br>':'')+
+    (rec.trim()?'<div style="margin-top:3px">'+rec+'</div>':'')+'</div></details>';
+}
 async function loadMgr(){
   if(hasBackend()){try{const a=await gw({action:'get',table:'',sheetId:SHEET_MANAGERS});if(a&&a.ok){MGRS=trimKeys(a.rows);renderMgr();return}else if(a&&a.error){MGRS=DEMO_MGRS;renderMgr();_busyNote('⚠ מנהלי עבודה: '+a.error);return}}catch(e){}}
   MGRS=DEMO_MGRS;renderMgr();
@@ -853,32 +866,34 @@ function renderCandidates(){
     const id=String(r['ID מנהל עבודה']||''),ph=mgrPhone(r),certs=mgrCerts(r).map(c=>'<span class="pill">'+c+'</span>').join(' ');
     const sub=esc((r['אזור עבודה מבוקש']||'—')+' · '+(r['תפקיד עיקרי']||'')+(r['סטטוס מועמד']?' · '+r['סטטוס מועמד']:''))+(mgrNoInt(r)?' · <span style="color:var(--danger)"><b>ללא ראיון</b></span>':'');
     const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(String(r['טלפון']||''))+'\',\''+escJs(r['שם מועמד']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
+    return '<div class="task"><div class="b b-'+(mgrNoInt(r)?'hot':'ok')+'"></div><div style="flex:1"><b>'+esc(r['שם מועמד'])+'</b> '+(r['ציון מועמד']?'<span class="pill">ציון '+esc(r['ציון מועמד'])+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div>'+(certs?'<div style="margin-top:3px">'+certs+'</div>':'')+mgrInterview(r)+'<div class="row" style="margin-top:6px"><button class="ghost" onclick="openMgrAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(String(r['טלפון']||''))+'\',\''+escJs(r['שם מועמד']||'')+'\')">📜 היסטוריה</button>'+callBtn(ph)+wa+'</div></div></div>';
   }).join('')||'<p class="muted">אין מועמדים.</p>';
 }
 function openMgrAct(id){
+  const r=MGRS.find(x=>String(x['ID מנהל עבודה'])===String(id))||{};
   const bg=document.createElement('div');bg.className='modal-bg';
-  bg.innerHTML='<div class="modal"><b>פעולה במועמד</b>'+
-    '<label>מה נעשה / הערה</label><textarea id="mgrNote" placeholder="לדוגמה: תיאמתי ראיון ליום ראשון / העברתי פרטים ללקוח"></textarea>'+
-    '<label>סמן שבוצע ראיון?</label><select id="mgrInt"><option value="">ללא שינוי</option><option value="כן">כן, בוצע ראיון</option></select>'+
-    '<label>מתי לחזור לבדוק (ימים)</label><input id="mgrDays" type="number" value="0" placeholder="0 = לא רלוונטי">'+
+  bg.innerHTML='<div class="modal"><b>פעולה במועמד: '+esc(r['שם מועמד']||'')+'</b>'+
+    (mgrNoInt(r)?'<p class="muted" style="margin:4px 0 0">טרם בוצע ראיון. <b>הראיון והציון נעשים במערכת הראיונות</b> — כאן רק מקדמים אותו לשם ומתעדים.</p>':'<div style="margin-top:4px">'+mgrInterview(r)+'</div>')+
+    '<label>מה נעשה / הערה</label><textarea id="mgrNote" placeholder="לדוגמה: תיאמתי ראיון ליום ראשון / העברתי פרטים לקבלן X / דיברנו על זמינות"></textarea>'+
+    '<div class="row" style="margin-top:4px"><button class="ghost" onclick="startDictation(\'mgrNote\')">🎤 הקראה</button></div>'+
+    '<label>עדכון זמינות (מה שאתה יודע מהשיחה)</label><select id="mgrAvail"><option value="">— ללא שינוי —</option><option value="זמין">זמין</option><option value="לא זמין">לא זמין</option><option value="לא מחפש עבודה">לא מחפש עבודה</option></select>'+
     '<div class="row"><button class="ok" onclick="saveMgrAct(\''+escJs(id)+'\')">שמור</button><button class="ghost" onclick="this.closest(\'.modal-bg\').remove()">בטל</button></div>'+
-    '<p class="muted">נשמר אצל המועמד בגיליון מנהלי העבודה (מסתנכרן עם מערכת הראיונות ו-AppSheet).</p></div>';
+    '<p class="muted">נשמר אצל המועמד (הערה + זמינות). <b>סטטוס הראיון והציון מגיעים ממערכת הראיונות — לא משתנים מכאן.</b></p></div>';
   document.body.appendChild(bg);
 }
 async function saveMgrAct(id){
-  const note=(document.getElementById('mgrNote').value||'').trim(),didInt=document.getElementById('mgrInt').value;
-  if(!note&&!didInt){toast('כתוב הערה או סמן ראיון');return}
+  const note=(document.getElementById('mgrNote').value||'').trim(),avail=document.getElementById('mgrAvail').value;
+  if(!note&&!avail){toast('כתוב הערה או עדכן זמינות');return}
   if(!id){toast('אין מזהה מועמד');return}
   if(_saving)return;_saving=true;
   const row=MGRS.find(r=>String(r['ID מנהל עבודה'])===String(id));
   const line=note?todayISO().slice(5)+': '+note:'';
   const set={'תאריך עדכון':todayISO()};
-  if(didInt)set['בוצע ראיון']=didInt;
+  if(avail)set['סטטוס מועמד']=avail; // זמינות = פעולה לגיטימית שלנו; 'בוצע ראיון'/ציון נשארים של מערכת הראיונות בלבד
   if(row){Object.assign(row,set);if(line)row['הערות']=(row['הערות']?row['הערות']+' | ':'')+line;}
   if(hasBackend()){try{const res=await gw({action:'appendNote',table:'',sheetId:SHEET_MANAGERS,key:{'ID מנהל עבודה':id},text:line,set:set});toast(res.ok?'נשמר אצל המועמד ✓':'שגיאה: '+(res.error||''))}catch(e){toast('שגיאת חיבור')}}
   else toast('דמו: הפעולה הייתה נשמרת');
-  if(row&&row['טלפון'])logAct(row['טלפון'],'מועמד','פעולה/הערה',note+(didInt?' | בוצע ראיון':''));
+  if(row&&row['טלפון'])logAct(row['טלפון'],'מועמד','פעולה/הערה',note+(avail?' | זמינות: '+avail:''));
   _saving=false;
   const m=document.querySelector('.modal-bg');if(m)m.remove();renderMgr();
 }

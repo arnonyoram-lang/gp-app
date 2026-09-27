@@ -90,7 +90,8 @@ function show(id,_back){
   try{window.scrollTo(0,0)}catch(e){}
 }
 
-const STATUSES=['חדש','לא ענה','דיברנו - לא צריך כרגע','לחזור בתאריך','מתעניין','חם','חם מאוד','נשלח מידע','נשלח הסכם','תיקונים בהסכם','חתום','הועבר לתאגיד','ממתין לשיבוץ עובדים','נקבע מועד התחלה','התחילו עובדים','פעיל','לקוח לא מרוצה - טיפול','ביקש עוד עובדים','סיים','לא רלוונטי','לא לפנות'];
+// רשימת הסטטוסים היחידה ללידים (עמודת 'בעבודה') — אותה רשימה בקליטה, בטיפול וב-AppSheet
+const LEAD_STATUSES=['קר','מתחמם','חם','בעבודה','סיים','ת. לא מעוניין','ת. לא עובדים איתו'];
 const CITIES=['רחובות','תל אביב','ירושלים','חיפה','באר שבע','נתניה','אשדוד','ראשון','פתח תקווה','חולון','רמלה','לוד','מודיעין','כפר סבא','הרצליה','אשקלון','עפולה','טבריה','נצרת','כרמיאל'];
 function normPhone(s){let d=(s||'').replace(/\D/g,'');if(d.length===9&&d.charAt(0)==='5')d='0'+d;if(d.startsWith('0'))d='972'+d.slice(1);return d}
 // תאריך מקומי (לא UTC!) — אחרת בין חצות ל-03:00 שעון ישראל נרשם "אתמול"
@@ -141,7 +142,7 @@ async function analyzeIntake(){
   const miss=[];if(!e['טלפון']&&!e['טלפון מנורמל'])miss.push('טלפון');if(!e['חברה'])miss.push('חברה');
   let h='<div class="card">'+(miss.length?'<div style="background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:8px;margin-bottom:8px;font-size:13px">⚠ חסר: '+miss.join(', ')+' — מומלץ להשלים לפני שליחה</div>':'')+'<b>נתונים מובנים</b>'+(e._ai?' <span class="tag t-new">שופר ע"י AI</span>':'')+'<div class="form">';
   F1.forEach(k=>{
-    if(k=='בעבודה')h+=field(k,sel(k,['קר','מתחמם','בעבודה','ת. לא מעוניין','ת. לא עובדים איתו'],e[k]));
+    if(k=='בעבודה')h+=field(k,sel(k,LEAD_STATUSES,e[k]));
     else if(k=='סוג עובדים')h+=field(k,sel(k,['','הודים','סרילנקים','תאילנדים','אוזבקים','גיאורגים'],e[k]));
     else if(k=='הערות'||k=='תאור הפרויקט')h+='<div class="full"><label>'+k+'</label><input data-k="'+k+'" value="'+esc(e[k]||'')+'"></div>';
     else h+=field(k,'<input data-k="'+k+'" value="'+esc(e[k]||'')+'">');
@@ -425,7 +426,7 @@ async function snoozeLead(phone,days){
 function openTreat(phone,name){
   const bg=document.createElement('div');bg.className='modal-bg';
   bg.innerHTML='<div class="modal"><b>טיפול / סכם שיחה: '+esc(name||'')+'</b>'+
-    '<label>סטטוס הלקוח (אחרי השיחה)</label><select id="trStatus"><option value="">— ללא שינוי —</option><option>קר</option><option>מתחמם</option><option>בעבודה</option><option>ת. לא מעוניין</option><option>ת. לא עובדים איתו</option></select>'+
+    '<label>סטטוס הלקוח (אחרי השיחה)</label><select id="trStatus"><option value="">— ללא שינוי —</option>'+LEAD_STATUSES.map(x=>'<option>'+x+'</option>').join('')+'</select>'+
     '<label>מה נאמר / מה נעשה <span class="muted">(אפשר להקריא 🎤)</span></label><textarea id="trText" placeholder="לדוגמה: דיברנו על 4 טפסנים לחיפה, שולח הצעת מחיר, יחזור אליי אחרי שיבדוק מול השותף"></textarea>'+
     '<div class="row" style="margin-top:4px"><button class="ghost" onclick="startDictation(\'trText\')">🎤 הקראה</button></div>'+
     '<label>סוג בעיה <span class="muted">(רק אם זו תלונה/בעיה)</span></label><select id="trType"><option value=""></option><option>מקצועיות</option><option>קצב עבודה</option><option>משמעת</option><option>שפה</option><option>מגורים</option><option>ציפיות</option><option>התאמה לאתר</option><option>זמינות עובדים</option><option>אחר</option></select>'+
@@ -523,7 +524,7 @@ function renderManager(){
     '<div class="row"><button class="ghost" onclick="exportLeads()">ייצוא לידים (Excel)</button><button class="ghost" onclick="exportCommiss()">ייצוא עמלות (Excel)</button></div></div>';
   const top=tasks[0];
   const followTomorrow=LEADS.filter(r=>daysSince(r['מתי לפנות שוב'])===-1).length;
-  document.getElementById('mgText').innerHTML='<div class="card"><h3>הפעולה הכי חשובה היום</h3>'+(top?('<b>'+top.c+'</b> — '+top.txt+' <span class="muted">('+top.reason+')</span>'):'אין')+
+  document.getElementById('mgText').innerHTML='<div class="card"><h3>הפעולה הכי חשובה היום</h3>'+(top?('<b>'+esc(top.c)+'</b> — '+esc(top.txt)+' <span class="muted">('+esc(top.reason)+')</span>'):'אין')+
     '<h3>הסיכון הכי גדול</h3>'+(stuckAg>0?stuckAg+' לקוחות חתומים שעדיין לא התחילו — לוודא מול התאגיד.':'אין סיכון בולט.')+
     '<h3>איפה הכסף על הרצפה</h3>'+(HOURS_DEMO?'⛔ גיליון השעות לא זמין — אין נתון אמיתי.':floor.toFixed(0)+'₪ — פערי עמלות + שורות בלי דיווח שעות.')+
     '<h3>סוף יום</h3>משימות פתוחות שנותרו: <b>'+tasks.length+'</b> · פולואפים למחר: <b>'+followTomorrow+'</b> · לידים חמים פתוחים: <b>'+hot+'</b>.'+
@@ -555,6 +556,7 @@ const AUDIENCES=[
   {k:'קבלני שלד',f:r=>num(r['כמות עובדים שלד'])>0},
   {k:'קבלני גמרים',f:r=>num(r['כמות עובדים גמרים'])>0},
   {k:'בעבודה (פעילים)',f:r=>r['תחילת עבודה']||r[F_STATUS]=='בעבודה'},
+  {k:'חמים',f:r=>r[F_STATUS]=='חם'},
   {k:'מתחממים',f:r=>r[F_STATUS]=='מתחמם'},
   {k:'קרים',f:r=>r[F_STATUS]=='קר'},
   {k:'דרישה חדשה',f:r=>r['דרישה חדשה']=='כן'},
@@ -754,7 +756,9 @@ async function loadProj(){
 }
 async function loadPlace(){
   if(PLACEMENTS_GID==null){PLACE=DEMO_PLACE;renderMgr();if(hasBackend())_busyNote('ℹ השמות: תצוגת דמו (ממתין ל-gid)');return}
-  if(hasBackend()){try{const a=await gw({action:'get',sheetId:SHEET_MANAGERS,gid:PLACEMENTS_GID});if(a&&a.ok){PLACE=trimKeys(a.rows);renderMgr();_busyNote('השמות: '+PLACE.length+' נטענו');return}else if(a&&a.error){PLACE=DEMO_PLACE;renderMgr();_busyNote('⚠ השמות: '+a.error);return}}catch(e){PLACE=DEMO_PLACE;renderMgr();_busyNote('⚠ השמות: שגיאת חיבור');return}}
+  if(hasBackend()){try{const rs=await Promise.all([gw({action:'get',sheetId:SHEET_MANAGERS,gid:PLACEMENTS_GID}),PROJ.length?null:gw({action:'get',sheetId:SHEET_MANAGERS,gid:PROJECTS_GID}).catch(()=>null),MGRS.length?null:gw({action:'get',table:'',sheetId:SHEET_MANAGERS}).catch(()=>null)]);const a=rs[0]; // השמות + (אם חסר) פרויקטים ומועמדים — לשמות ולמצב הפרויקט
+    if(rs[1]&&rs[1].ok)PROJ=trimKeys(rs[1].rows);if(rs[2]&&rs[2].ok)MGRS=trimKeys(rs[2].rows);
+    if(a&&a.ok){PLACE=trimKeys(a.rows);renderMgr();_busyNote('השמות: '+PLACE.length+' נטענו');return}else if(a&&a.error){PLACE=DEMO_PLACE;renderMgr();_busyNote('⚠ השמות: '+a.error);return}}catch(e){PLACE=DEMO_PLACE;renderMgr();_busyNote('⚠ השמות: שגיאת חיבור');return}}
   PLACE=DEMO_PLACE;renderMgr();
 }
 function renderProjects(){
@@ -770,21 +774,33 @@ function renderProjects(){
     return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(r['שם פרויקט']||('פרויקט '+id))+'</b>'+(con?' <span class="muted">· '+esc(con)+'</span>':'')+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openProjAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\''+escJs(r['שם פרויקט']||('פרויקט '+id))+'\')">📜 היסטוריה</button></div></div></div>';
   }).join('')||'<p class="muted">אין פרויקטים.</p>';
 }
+// מצב השמה לפי 'סטטוס השמה' (ולא לפי 'סיום עבודה' ריק): הצעה (פוטנציאלי) ≠ השמה פעילה (נקלט)
+function placeState(r){
+  const st=String(r['סטטוס השמה']||'').trim();
+  if(r['סיום עבודה']||/הסתי|נדח|נפסל|בוטל|לא רלוונט/.test(st))return 'closed';
+  if(/נקלט|פעיל|עובד|התחיל/.test(st)||r['תחילת עבודה'])return 'active';
+  return 'proposal'; // פוטנציאלי / בתהליך / ריק — עדיין הצעה, לא השמה
+}
+function projState(id){const p=PROJ.find(x=>String(x['מזהה פרויקט'])===String(id));if(!p)return '';const st=String(p['סטטוס פרויקט']||'');return (p['תאריך סיום']&&daysSince(p['תאריך סיום'])>0)||/הסת|לא פעיל|סגר/.test(st)?st||'הסתיים':'';}
 function renderPlacements(){
   const q=((document.getElementById('mgrSearch')||{}).value||'').trim();
-  let rows=PLACE.filter(r=>r['מזהה השמה']);
+  let rows=PLACE.filter(r=>String(r['מזהה השמה']||'').trim()&&(r['מזהה פרויקט']||r['מזהה מנהל עבודה'])); // בלי שורות רפאים (ללא מזהה/ללא תוכן)
   if(q)rows=rows.filter(r=>(lookupProj(r['מזהה פרויקט'])+' '+lookupCand(r['מזהה מנהל עבודה'])+' '+String(r['סטטוס השמה']||'')+' '+String(r['סטטוס תהליך']||'')).indexOf(q)>-1);
-  const open=r=>!r['סיום עבודה'];
-  rows.sort((a,b)=>(open(b)-open(a)));
-  const comm=rows.reduce((s,r)=>s+(parseFloat(String(r['עמלה']||'').replace(/[^\d.]/g,''))||0),0);
-  const noComm=rows.filter(r=>open(r)&&!String(r['עמלה']||'').trim()).length; // השמה פעילה בלי סכום עמלה = כסף שלא ייגבה
-  document.getElementById('mgrSummary').innerHTML='<div><b>'+rows.length+'</b> השמות</div><div>🟢 '+rows.filter(open).length+' פעילות</div><div>💰 '+comm.toLocaleString()+' ₪ עמלות</div>'+(noComm?'<div style="color:var(--danger)">⚠ '+noComm+' פעילות בלי עמלה!</div>':'');
-  document.getElementById('mgrList').innerHTML=rows.map(r=>{
-    const id=String(r['מזהה השמה']||''),pr=lookupProj(r['מזהה פרויקט']),mg=lookupCand(r['מזהה מנהל עבודה']);
-    const cm=r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':(open(r)?'<span class="pill" style="background:var(--danger-bg);color:var(--danger)">⚠ חסרה עמלה</span>':'');
-    const sub=esc((r['תחילת עבודה']||'')+(r['סיום עבודה']?' → '+r['סיום עבודה']:' (פעילה)')+(r['סטטוס השמה']?' · '+r['סטטוס השמה']:'')+(r['סטטוס תהליך']?' · '+r['סטטוס תהליך']:''));
-    return '<div class="task"><div class="b b-'+(open(r)?'ok':'mut')+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+cm+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\'השמה '+escJs(id)+'\')">📜 היסטוריה</button></div></div></div>';
-  }).join('')||'<p class="muted">אין השמות.</p>';
+  const ord={active:0,proposal:1,closed:2};
+  rows.sort((a,b)=>ord[placeState(a)]-ord[placeState(b)]);
+  const act=rows.filter(r=>placeState(r)=='active'),prop=rows.filter(r=>placeState(r)=='proposal'),cl=rows.filter(r=>placeState(r)=='closed');
+  const comm=act.reduce((s,r)=>s+(parseFloat(String(r['עמלה']||'').replace(/[^\d.]/g,''))||0),0);
+  const noComm=act.filter(r=>!String(r['עמלה']||'').trim()).length; // רק השמה שנקלטה בלי עמלה = כסף שלא ייגבה
+  const deadProp=prop.filter(r=>projState(r['מזהה פרויקט'])).length;
+  document.getElementById('mgrSummary').innerHTML='<div>🟢 <b>'+act.length+'</b> השמות פעילות</div><div>💡 '+prop.length+' הצעות פתוחות</div><div class="muted">'+cl.length+' נסגרו</div>'+(comm?'<div>💰 '+comm.toLocaleString()+' ₪ עמלות</div>':'')+(noComm?'<div style="color:var(--danger)">⚠ '+noComm+' השמות פעילות בלי עמלה!</div>':'')+(deadProp?'<div style="color:var(--warn)">'+deadProp+' הצעות על פרויקט שהסתיים/לא פעיל</div>':'');
+  const card=r=>{
+    const stt=placeState(r),id=String(r['מזהה השמה']||''),pr=lookupProj(r['מזהה פרויקט']),mg=lookupCand(r['מזהה מנהל עבודה']),dead=stt=='proposal'?projState(r['מזהה פרויקט']):'';
+    const tag=stt=='active'?(r['עמלה']?'<span class="pill">עמלה '+esc(r['עמלה'])+'</span>':'<span class="pill" style="background:var(--danger-bg);color:var(--danger)">⚠ חסרה עמלה</span>'):(stt=='proposal'?'<span class="pill">הצעה</span>':'<span class="pill">נסגר</span>');
+    const sub=esc((r['תחילת עבודה']?r['תחילת עבודה']+(r['סיום עבודה']?' → '+r['סיום עבודה']:''):'')+(r['סטטוס השמה']?' · '+r['סטטוס השמה']:'')+(r['סטטוס תהליך']?' · '+r['סטטוס תהליך']:''))+(dead?' · <span style="color:var(--warn)">הפרויקט '+esc(dead)+'</span>':'');
+    return '<div class="task"><div class="b b-'+(stt=='active'?'ok':(stt=='proposal'?'warn':'mut'))+'"></div><div style="flex:1"><b>'+esc(pr)+'</b> <span class="muted">↔ '+esc(mg)+'</span> '+tag+'<div class="muted" style="margin-top:2px">'+sub+'</div><div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlaceAct(\''+escJs(id)+'\')">פעולה/הערה</button><button class="ghost" onclick="openHistory(\''+escJs(id)+'\',\'השמה '+escJs(id)+'\')">📜 היסטוריה</button></div></div></div>';
+  };
+  const sec=(t,arr)=>arr.length?'<div class="muted" style="margin:10px 0 4px;font-weight:600">'+t+' ('+arr.length+')</div>'+arr.map(card).join(''):'';
+  document.getElementById('mgrList').innerHTML=(sec('השמות פעילות',act)+sec('הצעות פתוחות (מועמד שהוצע לפרויקט)',prop)+sec('נסגרו',cl))||'<p class="muted">אין השמות.</p>';
 }
 function openProjAct(id){
   const bg=document.createElement('div');bg.className='modal-bg';
@@ -943,7 +959,7 @@ function _waGroup(rows){
   groups.sort((a,b)=>((a.cat=='אחר')-(b.cat=='אחר'))||String(a.phone).localeCompare(String(b.phone)));
   return groups;
 }
-function _waGroupCard(g,actionsHtml){
+function _waGroupCard(g,actionsHtml,isEmp){
   const src=String(g.source||'');const isGrp=src.indexOf('קבוצה')===0;const ph=String(g.phone||'').replace(/\D/g,'');const fore=g.cat=='עובדים זרים';
   const srcHtml=src?'<div class="muted" style="font-size:12px;margin-top:2px">'+(isGrp?'📣 ':'👤 ')+esc(src)+'</div>':'';
   const nm=String(g.name||'').trim();
@@ -951,11 +967,40 @@ function _waGroupCard(g,actionsHtml){
   const cnt=g.msgs.length>1?' <span class="pill">'+g.msgs.length+' הודעות</span>':'';
   const msgsHtml=g.msgs.map(m=>'<div style="margin-top:4px;padding-inline-start:8px;border-inline-start:2px solid var(--line)"><span class="muted" style="font-size:11px">'+esc(m['תאריך']||'')+'</span> '+esc(m['טקסט']||'')+'</div>').join('');
   const wa=ph?'<button class="ok" onclick="waSend(\''+ph+'\')">וואטסאפ</button>':'';
-  return '<div class="task"><div class="b b-'+(fore?'hot':(g.cat=='אחר'?'mut':'ok'))+'"></div><div style="flex:1"><span class="pill">'+esc(g.cat)+'</span> '+who+cnt+srcHtml+msgsHtml+'<div class="row" style="margin-top:6px">'+actionsHtml+callBtn(ph)+wa+'</div></div></div>';
+  return '<div class="task"><div class="b b-'+(fore?'hot':(g.cat=='אחר'?'mut':'ok'))+'"></div><div style="flex:1"><span class="pill">'+esc(g.cat)+'</span> '+(isEmp?'<span class="pill" style="background:var(--warn-bg);color:var(--warn)">🏗️ נראה כמו מעסיק</span> ':'')+who+cnt+srcHtml+msgsHtml+'<div class="row" style="margin-top:6px">'+actionsHtml+callBtn(ph)+wa+'</div></div></div>';
 }
 function _waOther(){return waMode()=='m'?{cat:'עובדים זרים',label:'↪ העבר לזרים'}:{cat:'מנהלי עבודה',label:'↪ העבר למנהלים'};}
 // כפתור העברה לתחום השני — על כל כרטיס, כולל "אחר" (ההודעה עוברת לתצוגת התחום השני ומאושרת שם)
 function _waMoveBtn(ids,cat){const o=_waOther();return '<button class="ghost" onclick="waMoveGroup(\''+ids+'\',\''+o.cat+'\')">'+o.label+'</button>';}
+// מנהלי עבודה: הודעת "דרוש מנהל עבודה" היא מעסיק (הצד המשלם) — לא מועמד. זיהוי לפי ניסוח; ההחלטה הסופית בלחיצה שלך.
+function _waLooksEmployer(g){
+  const t=g.msgs.map(m=>String(m['טקסט']||'')).join(' ');
+  if(/מחפש(?:ת)?\s+עבודה|אני\s+(?:פנוי|זמין|מנהל)|פנוי\s+(?:היום|מחר|לעבודה|לסגירה)|קורות\s+חיים\s+שלי/.test(t))return false;
+  return /דרוש|דרושה|דרושים|מחפשים\s+מנהל|מחפש\s+מנהל|מגייס|לחברת|לפרטים|תשלום\s+בסוף|מנהל(?:י)?\s+עבודה\s+(?:ל|ב)?(?:מחר|היום|עכשיו)|למשרה|משרה\s+מלאה|דרישות|פרטים\s+לגבי\s+מנהל/.test(t);
+}
+function _waEmpBtn(g){return '<button class="'+(_waLooksEmployer(g)?'ok':'ghost')+'" onclick="waEmployerGroup(\''+escJs(g.ids)+'\')">מעסיק→קבלנים</button>';}
+// יוצר רשומה בטאב הקבלנים (מזמינים) מתוך הודעת וואטסאפ, ומסיר את ההודעה מהתור (כדי שלא תידחף בטעות כמועמד)
+async function waEmployerGroup(idsCsv){
+  if(!hasBackend()){toast('דמו');return;}const ids=String(idsCsv||'').split(',').filter(Boolean);if(!ids.length||_waActing)return;
+  const set={};ids.forEach(x=>set[String(x)]=1);const msgs=WA_ROWS.filter(r=>set[String(r['idMessage'])]);if(!msgs.length)return;
+  const m0=msgs[0],nm=String(m0['שם']||'').trim(),d=String(m0['טלפון']||'').replace(/\D/g,''),ph=d.length>=9?'0'+d.slice(-9):d;
+  if(!confirm('להוסיף את '+(nm||ph)+' כמעסיק בטאב הקבלנים? ההודעה תוסר מתור הוואטסאפ.'))return;
+  _waActing=true;
+  try{
+    if(!CON.length||CON===DEMO_CON){const c=await gw({action:'get',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID}).catch(()=>null);if(c&&c.ok)CON=trimKeys(c.rows);else{toast('⚠ לא הצלחתי לקרוא את טאב הקבלנים');return;}}
+    if(ph&&CON.some(r=>mgrPhone({'טלפון':r['טלפון']})===mgrPhone({'טלפון':ph}))){toast('המעסיק כבר קיים בקבלנים — ההודעה נשארת בתור');return;}
+    const nextId=CON.reduce((mx,r)=>Math.max(mx,parseInt(r['מזהה קבלן'])||0),0)+1;
+    const txt=msgs.map(m=>String(m['טקסט']||'').replace(/\s+/g,' ').trim()).join(' | ').slice(0,400);
+    const rec={'מזהה קבלן':String(nextId),'שם חברה':nm||ph,'איש קשר':nm,'טלפון':ph,'סטטוס קבלן':'חדש — מוואטסאפ','הערות':todayISO().slice(5)+': '+txt+(m0['מקור']?' (מקור: '+m0['מקור']+')':''),'חתם על הסכם':'לא','סגר':'לא'};
+    const a=await gw({action:'append',table:'קבלנים',sheetId:SHEET_MANAGERS,gid:CONTRACTORS_GID,record:rec});
+    if(!a||!a.ok){toast('⚠ לא נשמר בקבלנים: '+((a&&a.error)||'שגיאה'));return;}
+    CON.push(rec);
+    const r=await gw({action:'waRejectMany',ids:ids}).catch(()=>null);
+    toast('נוסף לקבלנים ✓ (מזהה '+nextId+')'+(r&&r.ok?'':' — ההודעה לא הוסרה מהתור'));
+    if(r&&r.ok)_waDropLocal(ids);
+    if(ph)logAct(ph,'קבלן','נוסף מוואטסאפ',txt.slice(0,120));
+  }catch(e){toast('שגיאת חיבור')}finally{_waActing=false}
+}
 function renderWaPending(){
   const rows=WA_ROWS;const dom=waMode()=='m'?'מנהלי עבודה':'עובדים זרים + אחר';
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> ממתינים · '+dom+'</div>';
@@ -967,10 +1012,11 @@ function renderWaPending(){
     // בקבוצה: גם השתקת הקבוצה כולה וגם החרגת האדם הספציפי; בהודעה אישית: החרגת האדם
     const muteBtn=(isGrp&&grpName?'<button class="ghost" onclick="waMuteUI(\''+escJs(grpName)+'\',\'group\')">🔇 השתק קבוצה</button>':'')+
       (person?'<button class="ghost" onclick="waMuteUI(\''+escJs(person)+'\',\'person\',\''+escJs(personLbl)+'\')">🚫 החרג את '+esc(personLbl)+'</button>':'');
+    const emp=g.cat!='עובדים זרים'?_waEmpBtn(g):'',isEmp=g.cat!='עובדים זרים'&&_waLooksEmployer(g);
     const acts=(g.cat=='אחר')
-      ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn
-      :'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn;
-    return _waGroupCard(g,acts);
+      ?'<button class="ok" onclick="waApproveGroup(\''+ids+'\',\'עובדים זרים\')">אשר→ליד</button><button class="ok" onclick="waApproveGroup(\''+ids+'\',\'מנהלי עבודה\')">אשר→מועמד</button>'+emp+'<button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn
+      :(g.cat=='מנהלי עבודה'?(isEmp?emp+'<button class="ghost" onclick="waApproveGroup(\''+ids+'\')">אשר→מועמד</button>':'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר→מועמד</button>'+emp):'<button class="ok" onclick="waApproveGroup(\''+ids+'\')">אשר</button>')+'<button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat)+muteBtn;
+    return _waGroupCard(g,acts,isEmp);
   }).join('')||'<p class="muted">אין הודעות ממתינות בתחום הזה.</p>';
 }
 function renderWaApproved(){
@@ -978,7 +1024,7 @@ function renderWaApproved(){
   document.getElementById('waSummary').innerHTML='<div><b>'+rows.length+'</b> מאושרים (טרם הועברו) · '+dom+'</div>';
   document.getElementById('waList').innerHTML=_waGroup(rows).map(g=>{
     const ids=escJs(g.ids),fore=g.cat=='עובדים זרים';
-    return _waGroupCard(g,'<button class="ok" onclick="waPushGroup(\''+ids+'\')">העבר לגוגל שיט → '+(fore?'לידים':'מועמדים')+'</button><button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat));
+    return _waGroupCard(g,'<button class="ok" onclick="waPushGroup(\''+ids+'\')">העבר לגוגל שיט → '+(fore?'לידים':'מועמדים')+'</button>'+(fore?'':_waEmpBtn(g))+'<button class="ghost" onclick="waRejectGroup(\''+ids+'\')">דחה</button>'+_waMoveBtn(ids,g.cat),!fore&&_waLooksEmployer(g));
   }).join('')||'<p class="muted">אין מאושרים בתחום הזה.</p>';
 }
 async function waPullNow(force){
